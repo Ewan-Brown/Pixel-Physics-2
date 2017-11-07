@@ -20,5 +20,8 @@ public class Particle {
 	double vY = 0;
 	double vX = 0;
 	int RGB = Color.WHITE.getRGB();
+	public double getSpeed(){
+		return Math.sqrt(vX * vX + vY * vY);
+	}
 
 }

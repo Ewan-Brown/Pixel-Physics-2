@@ -1,26 +1,26 @@
 package pixelphysics2;
 
-import java.awt.Color;
 import java.awt.Graphics;
-import java.awt.MouseInfo;
 import java.awt.Point;
-import java.awt.Polygon;
+import java.awt.Toolkit;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
-import java.util.ArrayList;
+import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable,MouseListener{
 	int sleep = 10;
-	static BufferedImage bi = new BufferedImage(1920,1080,BufferedImage.TYPE_3BYTE_BGR);
-	static ArrayList<Point> clicks = new ArrayList<Point>();
-	static boolean click = false;
+	long tick = 0;
+	Random rand = new Random();
+	int vX = 0;
+	int vY = 0;
+	JFrame f;
 	public GamePanel() {
 		addMouseListener(this);
-		JFrame f = new JFrame("GamePanel");
-		f.setSize(500, 500);
+		f = new JFrame("GamePanel");
+		f.setSize(500,500);
+		f.setLocation(rand.nextInt(1000), rand.nextInt(1000));
 		f.add(this);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
@@ -33,70 +33,33 @@ public class GamePanel extends JPanel implements Runnable,MouseListener{
 	public void paint (Graphics gr) {
 		int xOff = this.getLocationOnScreen().x;
 		int yOff = this.getLocationOnScreen().y;
-		gr.drawImage(bi, 0 - xOff, 0 - yOff, null);
+		gr.drawImage(Main.bi, 0 - xOff, 0 - yOff, null);
 	}
-	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
-		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
-	}
-	public static void update(){
-		if(click){
-			clicks.add(MouseInfo.getPointerInfo().getLocation());
-		}
-		for(int i = 0; i < clicks.size();i++){
-			int baseX = clicks.get(i).x;
-			int baseY = clicks.get(i).y;
-			for(int j = 0; j < Main.particles.length;j++){
-				Particle p = Main.particles[j];
-				double dist = getDistance(p.x, p.y, baseX, baseY);
-				double deltaX = (p.x - baseX) / dist;
-				double deltaY = (p.y - baseY) / dist;
-				p.vX -= deltaX / 10;
-				p.vY -= deltaY / 10;
-			}
-		}
-		clicks.clear();
-		Graphics grb = bi.getGraphics();
-		grb.setColor(Color.BLACK);
-		for(int i = 0; i < Data.particleNum;i++){
-			Particle p = Main.particles[i];
-			double x = p.x;
-			double y = p.y;
-			double lastX = p.lastX;
-			double lastY = p.lastY;
-//			if(lastX < x){
-//				double tempX = x;
-//				double tempY = y;
-//				x = lastX;
-//				y = lastY;
-//				lastX = tempX;
-//				lastY = tempY;
-//			}
-			double m = (lastY - y)/(lastX - x);
-			double m2 = -1/m;
-			int[] xA = new int[4];
-			int[] yA = new int[4];
-			double a = Math.atan(m2);
-			double dX = Math.cos(a) * (double)p.size / 2;
-			double dY = Math.sin(a) * (double)p.size / 2;
-			xA[0] = (int) (x + dX);
-			yA[0] = (int) (y + dY);
-			xA[1] = (int) (lastX + dX);
-			yA[1] = (int) (lastY + dY);
-			xA[2] = (int) (lastX - dX);
-			yA[2] = (int) (lastY - dY);
-			xA[3] = (int) (x - dX);
-			yA[3] = (int) (y - dY);
-			Polygon poly = new Polygon(xA,yA,4);
-			int s = p.size;
-			grb.setColor(new Color(p.RGB));
-			grb.fillPolygon(poly);
-//			grb.drawLine((int)x, (int)y, (int)lastX, (int)lastY);
-			grb.fillOval((int)x - s/2, (int)y - s/2, s, s);
-		}
-	}
-	@Override
 	public void run() {
 		while(true) {
+			tick++;
+			Point p = f.getLocationOnScreen();
+			if(rand.nextDouble() < 0.3){
+//				vX += rand.nextInt(3) - 1;
+//				vY += rand.nextInt(3) - 1;
+			}
+			if(Math.abs(vX) > 4){
+				vX -= Math.signum(vX);
+			}
+			if(Math.abs(vY) > 4){
+				vY -= Math.signum(vY);
+			}
+			if(p.x < 0 || p.x + getWidth() > Toolkit.getDefaultToolkit().getScreenSize().getWidth()){
+				vX = -vX;
+				f.setLocation(p.x + vX, p.y);
+			}
+			if(p.y < 0 || p.y + getHeight() > Toolkit.getDefaultToolkit().getScreenSize().getHeight()){
+				vY = -vY;
+				f.setLocation(p.x, p.y + vY);
+			}
+			if(tick % 2 == 1){
+				f.setLocation(p.x + vX, p.y + vY);
+			}
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
@@ -104,34 +67,20 @@ public class GamePanel extends JPanel implements Runnable,MouseListener{
 			}
 			repaint();
 		}
-		
-	}
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mousePressed(MouseEvent e) {
-		click = true;
-		
-	}
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		click = false;
-		
-	}
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
-	@Override
-	public void mouseExited(MouseEvent e) {
-		// TODO Auto-generated method stub
-		
-	}
 
-	
-	
+	}
+	public void mouseClicked(MouseEvent e) {}
+	public void mousePressed(MouseEvent e) {
+		Main.click = true;
+
+	}
+	public void mouseReleased(MouseEvent e) {
+		Main.click = false;
+
+	}
+	public void mouseEntered(MouseEvent e) {}
+	public void mouseExited(MouseEvent e) {}
+
+
+
 }
