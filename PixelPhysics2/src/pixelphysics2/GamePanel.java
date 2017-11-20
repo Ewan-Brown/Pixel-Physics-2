@@ -3,13 +3,15 @@ package pixelphysics2;
 import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.Toolkit;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 import java.util.Random;
 
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 public class GamePanel extends JPanel implements Runnable{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	int sleep = 10;
 	long tick = 0;
 	Random rand = new Random();
@@ -19,7 +21,9 @@ public class GamePanel extends JPanel implements Runnable{
 	int aY = 0;
 	JFrame f;
 	public GamePanel() {
-		addMouseListener(new Inputerface());
+		Inputerface i = new Inputerface();
+		addMouseListener(i);
+		addKeyListener(i);
 		f = new JFrame("GamePanel");
 		f.setSize(500,500);
 		f.setLocation(rand.nextInt(1000), rand.nextInt(1000));

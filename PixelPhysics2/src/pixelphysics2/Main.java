@@ -1,15 +1,26 @@
 package pixelphysics2;
 
+import static pixelphysics2.Data.RGB;
+import static pixelphysics2.Data.RGB_switch;
+import static pixelphysics2.Data.bi;
+import static pixelphysics2.Data.fill;
+import static pixelphysics2.Data.mode;
+import static pixelphysics2.Data.particleNum;
+import static pixelphysics2.Data.shiftAmount;
+import static pixelphysics2.Data.width;
+
 import java.awt.Color;
-import java.awt.Graphics;
+import java.awt.Graphics2D;
 import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Polygon;
+import java.awt.RenderingHints;
 import java.util.Random;
-import static pixelphysics2.Data.*;
 public class Main {
 	static Particle[] particles = new Particle[particleNum];
 	static Random rand = new Random();
 	static int tick = 0;
+	static Point move;
 	public static void shiftColor(){
 		RGB[RGB_switch] += shiftAmount;
 		if(RGB[RGB_switch] > 255){
@@ -34,7 +45,17 @@ public class Main {
 			return true;
 		return false;
 	}
+	public static void doMove(int x, int y, long time){
+		double mills = time / 1000000L;
+		double xD = (double)x / (mills);
+		double yD = (double)y / (mills);
+		for(int i = 0; i < particleNum; i++){
+			particles[i].vX += xD;
+			particles[i].vY += yD;
+		}
+	}
 	public static void main(String[] args) {
+		System.setProperty("sun.java2d.opengl","True");
 		for (int i = 0 ;i  < particleNum;i++) {
 			int x = i % width;
 			int y = (int)Math.floor(((double)i / (double)width));
@@ -42,7 +63,8 @@ public class Main {
 			y = (int)(Math.random() * 1000);
 			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
 			particles[i].RGB = rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
-			particles[i].size = rand.nextInt(5)+2;
+			particles[i].size = rand.nextInt(10)+10;
+			//FIXME Particles must be 4 size or bigger or else DrawOval() draws a square
 			//	int rgb = r << 16 | g << 8 | b ;
 			//	int r = rgb >> 16 & 0XFF;
 			//	int g = rgb >> 8 & 0XFF;
@@ -53,7 +75,8 @@ public class Main {
 		}
 		while(true){
 			tick++;
-				update();
+			update();
+			Inputerface.updateKeys();
 			try {
 				Thread.sleep(10);
 			} catch (InterruptedException e) {
@@ -62,10 +85,10 @@ public class Main {
 				Particle p = particles[i];
 				p.lastX = p.x;
 				p.lastY = p.y;
-				p.x += p.vX * 10;
-				p.y += p.vY * 10;
-				p.vX -= p.vX / 500;
-				p.vY -= p.vY / 500;
+				p.x += p.vX * 4;
+				p.y += p.vY * 4;
+				p.vX -= p.vX / 200;
+				p.vY -= p.vY / 200;
 			}
 		}
 
@@ -76,7 +99,6 @@ public class Main {
 			return p.RGB;
 		case 1:
 			double v = p.getSpeed();
-			System.out.println(v + " " +rand.nextInt(4));
 			int r = (v > 10) ? 240 : (int)(-5*((v - 10) *(v - 10))) + 240;
 			if(r < 0){
 				r = 0;
@@ -101,12 +123,12 @@ public class Main {
 	}
 	public static void update(){
 		shiftColor();
-		if(Inputerface.click){
-			Inputerface.clicks.add(MouseInfo.getPointerInfo().getLocation());
+		if(Inputerface.rightClick){
+			Inputerface.rightClickList.add(MouseInfo.getPointerInfo().getLocation());
 		}
-		for(int i = 0; i < Inputerface.clicks.size();i++){
-			int baseX = Inputerface.clicks.get(i).x;
-			int baseY = Inputerface.clicks.get(i).y;
+		for(int i = 0; i < Inputerface.rightClickList.size();i++){
+			int baseX = Inputerface.rightClickList.get(i).x;
+			int baseY = Inputerface.rightClickList.get(i).y;
 			for(int j = 0; j < Main.particles.length;j++){
 				Particle p = Main.particles[j];
 				double dist = getDistance(p.x, p.y, baseX, baseY);
@@ -116,8 +138,10 @@ public class Main {
 				p.vY -= deltaY / 10;
 			}
 		}
-		Inputerface.clicks.clear();
-		Graphics grb = bi.getGraphics();
+		Inputerface.rightClickList.clear();
+		Graphics2D grb = (Graphics2D)bi.getGraphics();
+		grb.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_ON); 
 		grb.setColor(Color.BLACK);
 		for(int i = 0; i < particleNum;i++){
 			Particle p = Main.particles[i];
@@ -130,8 +154,13 @@ public class Main {
 			int[] xA = new int[4];
 			int[] yA = new int[4];
 			double a = Math.atan(m2);
-			double dX = Math.cos(a) * (double)p.size / 2;
-			double dY = Math.sin(a) * (double)p.size / 2;
+			int s = p.size;
+			int v = (int)Math.ceil(p.getSpeed() * 3);
+			if(Data.stretch){
+				s = v;
+			}
+			double dX = Math.cos(a) * (double)s / 2;
+			double dY = Math.sin(a) * (double)s / 2;
 			xA[0] = (int) (x + dX);
 			yA[0] = (int) (y + dY);
 			xA[1] = (int) (lastX + dX);
@@ -141,11 +170,10 @@ public class Main {
 			xA[3] = (int) (x - dX);
 			yA[3] = (int) (y - dY);
 			Polygon poly = new Polygon(xA,yA,4);
-			int s = p.size;
 			grb.setColor(new Color(getRGB(p)));
 			if(fill){
 				grb.fillPolygon(poly);
-				grb.fillOval((int)x - s/2, (int)y - s/2, s, s);
+				grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 			else{
 				grb.drawPolygon(poly);

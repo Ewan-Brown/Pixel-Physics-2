@@ -5,11 +5,12 @@ import java.util.Random;
 
 public class Data {
 	
-	static int particleNum = 1000;
+	static int particleNum = 500;
 	static int width = 10;
 	static int height = 20;
 	static Random rand = new Random();
 	static int mode = 2; //Normal:0 //Speed:1 //Angle:2
+	static boolean stretch = true;
 	public static int[] RGB = new int[3];
 	public static int RGB_switch = 1;
 	public static int shiftAmount = 1;
