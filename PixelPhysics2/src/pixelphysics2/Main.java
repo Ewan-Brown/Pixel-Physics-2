@@ -172,12 +172,12 @@ public class Main {
 			Polygon poly = new Polygon(xA,yA,4);
 			grb.setColor(new Color(getRGB(p)));
 			if(fill){
-				grb.fillPolygon(poly);
-				grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+				if(Data.shape != 1)grb.fillPolygon(poly);
+				if(Data.shape != 2)grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 			else{
-				grb.drawPolygon(poly);
-				grb.drawOval((int)x - s/2, (int)y - s/2, s, s);
+				if(Data.shape != 1)grb.drawPolygon(poly);
+				if(Data.shape != 2)grb.drawOval((int)x - s/2, (int)y - s/2, s, s);
 			}
 		}
 	}

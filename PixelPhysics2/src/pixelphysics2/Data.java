@@ -9,7 +9,8 @@ public class Data {
 	static int width = 10;
 	static int height = 20;
 	static Random rand = new Random();
-	static int mode = 2; //Normal:0 //Speed:1 //Angle:2
+	static int mode = 2; //Normal:0 //Speed:1 //Universal(classic):2
+	static int shape = 2; //Both:0 //Circle:1 //Poly:2
 	static boolean stretch = true;
 	public static int[] RGB = new int[3];
 	public static int RGB_switch = 1;
