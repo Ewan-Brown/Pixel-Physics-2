@@ -78,9 +78,7 @@ public class Main {
 			//	int g = rgb >> 8 & 0XFF;
 			//	int b = rgb & 0XFF;
 		}
-		for(int i = 0; i < 1;i++){
 			new GamePanel();
-		}
 		while(true){
 			tick++;
 			update();
@@ -164,7 +162,6 @@ public class Main {
 			double a = Math.atan(m2);
 			int s = p.size;
 			int v = (int)Math.ceil(p.getSpeed() * 4);
-			v = 40 - v;
 			if(Data.stretch){
 				s = v;
 			}

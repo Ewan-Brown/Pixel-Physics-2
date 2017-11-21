@@ -23,7 +23,7 @@ public class GamePanel extends JPanel implements Runnable{
 		addKeyListener(i);
 		f = new JFrame("GamePanel");
 		f.setSize(500,500);
-		f.setLocation(rand.nextInt(1000), rand.nextInt(1000));
+		f.setLocation(0, 0);
 		f.add(this);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
