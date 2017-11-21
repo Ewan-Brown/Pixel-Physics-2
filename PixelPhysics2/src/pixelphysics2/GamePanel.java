@@ -15,10 +15,7 @@ public class GamePanel extends JPanel implements Runnable{
 	int sleep = 10;
 	long tick = 0;
 	Random rand = new Random();
-	int vX = 0;
-	int vY = 0;
-	int aX = 0;
-	int aY = 0;
+	
 	JFrame f;
 	public GamePanel() {
 		Inputerface i = new Inputerface();
@@ -44,43 +41,6 @@ public class GamePanel extends JPanel implements Runnable{
 	public void run() {
 		while(true) {
 			tick++;
-			Point p = f.getLocationOnScreen();
-			if(rand.nextDouble() < 0.3){
-//				vX += rand.nextInt() - 1;
-//				vY += rand.nextInt(3) - 1;
-//				aX = rand.nextInt(3) - 1;
-//				aY = rand.nextInt(3) - 1;
-			}
-			if(rand.nextDouble() < 0.5){
-				vX += aX;
-				vY += aY;
-			}
-			if(Math.abs(vX) > 3){
-//				vX -= Math.signum(vX);
-				aX = (int) -Math.signum(vX);
-			}
-			if(Math.abs(vY) > 3){
-//				vY -= Math.signum(vY);
-				aY = (int) -Math.signum(vY);
-			}
-			if(p.x < 0 || p.x + getWidth() > Toolkit.getDefaultToolkit().getScreenSize().getWidth()){
-				vX = -vX;
-				aX = (int)Math.signum(vX);
-				f.setLocation(p.x + vX, p.y);
-			}
-			if(p.y < 0 || p.y + getHeight() > Toolkit.getDefaultToolkit().getScreenSize().getHeight()){
-				vY = -vY;
-				aY = (int)Math.signum(vY);
-				f.setLocation(p.x, p.y + vY);
-			}
-			if(tick % 2 == 1){
-				f.setLocation(p.x + vX, p.y + vY);
-			}
-			try {
-				Thread.sleep(10);
-			} catch (InterruptedException e) {
-				e.printStackTrace();
-			}
 			repaint();
 		}
 

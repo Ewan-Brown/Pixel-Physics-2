@@ -17,7 +17,7 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.util.Random;
 public class Main {
-	static Particle[] particles = new Particle[particleNum];
+	static Particle[] particles;
 	static Random rand = new Random();
 	static int tick = 0;
 	static Point move;
@@ -55,6 +55,14 @@ public class Main {
 		}
 	}
 	public static void main(String[] args) {
+		Random rand = new Random();
+		Data.mode = rand.nextInt(3);
+		Data.shape = rand.nextInt(3);
+		Data.shiftAmount = rand.nextInt(4) + 1;
+		Data.stretch = rand.nextBoolean();
+		Data.fill = rand.nextBoolean();
+		Data.particleNum = rand.nextInt(100) + 1;
+		particles = new Particle[particleNum];
 		System.setProperty("sun.java2d.opengl","True");
 		for (int i = 0 ;i  < particleNum;i++) {
 			int x = i % width;
@@ -155,7 +163,8 @@ public class Main {
 			int[] yA = new int[4];
 			double a = Math.atan(m2);
 			int s = p.size;
-			int v = (int)Math.ceil(p.getSpeed() * 3);
+			int v = (int)Math.ceil(p.getSpeed() * 4);
+			v = 40 - v;
 			if(Data.stretch){
 				s = v;
 			}
