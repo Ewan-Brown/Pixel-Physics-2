@@ -4,23 +4,33 @@ import static pixelphysics2.Data.RGB;
 import static pixelphysics2.Data.RGB_switch;
 import static pixelphysics2.Data.bi;
 import static pixelphysics2.Data.fill;
-import static pixelphysics2.Data.mode;
 import static pixelphysics2.Data.particleNum;
 import static pixelphysics2.Data.shiftAmount;
 import static pixelphysics2.Data.width;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
+import java.awt.Toolkit;
+import java.awt.image.BufferedImage;
 import java.util.Random;
+
+import pixelphysics2.Data.Shape;
+import pixelphysics2.Data.Texture;
+
 public class Main {
 	static Particle[] particles;
 	static Random rand = new Random();
 	static int tick = 0;
 	static Point move;
+	static int mainLag;
+	static int panelLag = 0;
 	public static void shiftColor(){
 		RGB[RGB_switch] += shiftAmount;
 		if(RGB[RGB_switch] > 255){
@@ -45,7 +55,7 @@ public class Main {
 			return true;
 		return false;
 	}
-	public static void doMove(int x, int y, long time){
+	public static void flick(int x, int y, long time){
 		double mills = time / 1000000L;
 		double xD = (double)x / (mills);
 		double yD = (double)y / (mills);
@@ -54,14 +64,29 @@ public class Main {
 			particles[i].vY += yD;
 		}
 	}
-	public static void main(String[] args) {
+	public static void main(String[] args) { 
+		// Cuts <10% lag?!
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		GraphicsConfiguration gfx_config = GraphicsEnvironment.
+		        getLocalGraphicsEnvironment().getDefaultScreenDevice().
+		        getDefaultConfiguration();
+		bi = gfx_config.createCompatibleImage(screenSize.width,screenSize.height);
+		bi.setAccelerationPriority(1);
 		Random rand = new Random();
-		Data.mode = rand.nextInt(3);
-		Data.shape = rand.nextInt(3);
-		Data.shiftAmount = rand.nextInt(4) + 1;
-		Data.stretch = rand.nextBoolean();
-		Data.fill = rand.nextBoolean();
-		Data.particleNum = rand.nextInt(100) + 1;
+//		Data.c = Texture.values()[rand.nextInt(Data.Texture.values().length)];
+//		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
+//		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
+//		Data.shiftAmount = rand.nextInt(4) + 1;
+//		Data.stretch = rand.nextBoolean();
+//		Data.fill = rand.nextBoolean();
+		//Data.particleNum = rand.nextInt(100) + 1;
+		Data.particleNum = 1000;
+		System.out.println(Data.s);
+		Data.c = Texture.ANGLE;
+		Data.fill = true;
+		Data.s = Shape.BOTH;
+		Data.stretch = false;
+		Data.colorWheelMultiplier = 5;
 		particles = new Particle[particleNum];
 		System.setProperty("sun.java2d.opengl","True");
 		for (int i = 0 ;i  < particleNum;i++) {
@@ -78,7 +103,7 @@ public class Main {
 			//	int g = rgb >> 8 & 0XFF;
 			//	int b = rgb & 0XFF;
 		}
-			new GamePanel();
+		new GamePanel();
 		while(true){
 			tick++;
 			update();
@@ -100,33 +125,58 @@ public class Main {
 
 	}
 	public static int getRGB(Particle p){
-		switch(mode){
-		case 0:
+		int r = 0;
+		int g = 0;
+		int b = 0;
+		switch(Data.c){
+
+		case INDIVIDUAL:
 			return p.RGB;
-		case 1:
+		case SPEED:
 			double v = p.getSpeed();
-			int r = (v > 10) ? 240 : (int)(-5*((v - 10) *(v - 10))) + 240;
+			r = (v > 10) ? 240 : (int)(-5*((v - 10) *(v - 10))) + 240;
 			if(r < 0){
 				r = 0;
 			}
 			r += 15;
-			int g = (int)-(9*(v - 7) *(v - 7)) + 240;
+			g = (int)-(9*(v - 7) *(v - 7)) + 240;
 			if(g < 0){
 				g = 0;
 			}
 			g += 15;
-			int b = (int)-(5*(v - 3) *(v - 3)) + 240;
+			b = (int)-(5*(v - 3) *(v - 3)) + 240;
 			if(b < 0){
 				b = 0;
 			}
 			b += 15;
 			return r << 16 | g << 8 | b ;
-		case 2:
+		case CLASSIC:
 			return RGB[0] << 16 | RGB[1] << 8 | RGB[2] ;
-
+		case ANGLE:
+			double a = p.getAngle();
+			double deg = a * Data.colorWheelMultiplier;
+			r = (int)Math.floor((Math.cos(deg) * 255));
+			g = (int)Math.floor((Math.cos(deg + 2.0944) * 255));
+			b = (int)Math.floor((Math.cos(deg + 4.18879) * 255));
+			if(Data.colorWheelFlip){
+				r = 255 - r;
+				g = 255 - g;
+				b = 255 - b;
+			}
+			if(r < 0){
+				r = 0;
+			}
+			if(g < 0){
+				g = 0;
+			}
+			if(b < 0){
+				b = 0;
+			}
+			return r << 16 | g << 8 | b ;
 		}
 		return 0;
 	}
+
 	public static void update(){
 		shiftColor();
 		if(Inputerface.rightClick){
@@ -149,6 +199,7 @@ public class Main {
 		grb.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_ON); 
 		grb.setColor(Color.BLACK);
+		long t0 = System.nanoTime();
 		for(int i = 0; i < particleNum;i++){
 			Particle p = Main.particles[i];
 			double x = p.x;
@@ -177,15 +228,22 @@ public class Main {
 			yA[3] = (int) (y - dY);
 			Polygon poly = new Polygon(xA,yA,4);
 			grb.setColor(new Color(getRGB(p)));
-			if(fill){
-				if(Data.shape != 1)grb.fillPolygon(poly);
-				if(Data.shape != 2)grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+			//TODO Fix this flag statement with something streamline, and switch this Data.s to a switch-case thing
+			if(Data.s == Shape.LINE){
+				grb.drawLine((int)lastX, (int)lastY, (int)x, (int)y);
+			}
+			else if(fill){
+				if(Data.s != Shape.CIRCLE)grb.fillPolygon(poly);
+				if(Data.s != Shape.RECTANGLE)grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 			else{
-				if(Data.shape != 1)grb.drawPolygon(poly);
-				if(Data.shape != 2)grb.drawOval((int)x - s/2, (int)y - s/2, s, s);
+				if(Data.s != Shape.CIRCLE)grb.drawPolygon(poly);
+				if(Data.s != Shape.RECTANGLE)grb.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 		}
+		long t1 = System.nanoTime();
+		System.out.print((t1 - t0) / 1000000 + " ");
+		System.out.println(panelLag);
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
 		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));

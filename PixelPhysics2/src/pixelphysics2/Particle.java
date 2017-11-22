@@ -23,5 +23,8 @@ public class Particle {
 	public double getSpeed(){
 		return Math.sqrt(vX * vX + vY * vY);
 	}
+	public double getAngle(){
+		return Math.atan2(-vY, vX);
+	}
 
 }

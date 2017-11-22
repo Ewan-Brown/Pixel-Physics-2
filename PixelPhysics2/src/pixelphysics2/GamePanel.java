@@ -1,8 +1,7 @@
 package pixelphysics2;
 
 import java.awt.Graphics;
-import java.awt.Point;
-import java.awt.Toolkit;
+import java.awt.image.DataBufferByte;
 import java.util.Random;
 
 import javax.swing.JFrame;
@@ -21,6 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
 		Inputerface i = new Inputerface();
 		addMouseListener(i);
 		addKeyListener(i);
+		setFocusable(true);
 		f = new JFrame("GamePanel");
 		f.setSize(500,500);
 		f.setLocation(0, 0);
@@ -34,9 +34,12 @@ public class GamePanel extends JPanel implements Runnable{
 		return false;
 	}
 	public void paint (Graphics gr) {
+		long t0 = System.nanoTime();
 		int xOff = this.getLocationOnScreen().x;
 		int yOff = this.getLocationOnScreen().y;
 		gr.drawImage(Data.bi, 0 - xOff, 0 - yOff, null);
+		long t1 = System.nanoTime();
+		Main.panelLag = (int) (t1 - t0) /1000000;
 	}
 	public void run() {
 		while(true) {

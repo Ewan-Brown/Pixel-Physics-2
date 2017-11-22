@@ -20,12 +20,6 @@ public class Inputerface implements MouseListener, KeyListener{
 		for(int i = 0; i < cooldowns.length;i++){
 			cooldowns[i]--;
 		}
-		if(isKeyFresh(KeyEvent.VK_S)){
-			Data.stretch = !Data.stretch;
-		}
-		if(isKeyFresh(KeyEvent.VK_F)){
-			Data.fill = !Data.fill;
-		}
 	}
 	public static boolean isKeyFresh(int key){
 		return keySet[key] && cooldowns[key] < 0;
@@ -48,7 +42,7 @@ public class Inputerface implements MouseListener, KeyListener{
 			Point local = e.getLocationOnScreen();
 			Point move = new Point(local.x - lastLeftClickPress.x,local.y - lastLeftClickPress.y);
 			long time = System.nanoTime() - lastLeftClickTime;
-			Main.doMove(move.x, move.y, time);
+			Main.flick(move.x, move.y, time);
 		}
 	}
 	public void mouseEntered(MouseEvent e) {}
