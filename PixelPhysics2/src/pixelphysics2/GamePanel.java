@@ -1,7 +1,6 @@
 package pixelphysics2;
 
 import java.awt.Graphics;
-import java.awt.image.DataBufferByte;
 import java.util.Random;
 
 import javax.swing.JFrame;

@@ -1,6 +1,7 @@
 package pixelphysics2;
 
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.Random;
 
 public class Data {
@@ -25,5 +26,5 @@ public class Data {
 	public static int RGB_switch = 1;
 	public static int shiftAmount = 1;
 	static boolean fill = true;
-	static BufferedImage bi = new BufferedImage(1920,1080,BufferedImage.TYPE_INT_BGR);
+	static BufferedImage bi;
 }

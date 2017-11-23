@@ -19,6 +19,7 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.Random;
 
 import pixelphysics2.Data.Shape;
@@ -29,7 +30,7 @@ public class Main {
 	static Random rand = new Random();
 	static int tick = 0;
 	static Point move;
-	static int mainLag;
+	static int mainLag = 0;
 	static int panelLag = 0;
 	public static void shiftColor(){
 		RGB[RGB_switch] += shiftAmount;
@@ -67,18 +68,19 @@ public class Main {
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		GraphicsConfiguration gfx_config = GraphicsEnvironment.
-		        getLocalGraphicsEnvironment().getDefaultScreenDevice().
-		        getDefaultConfiguration();
-		bi = gfx_config.createCompatibleImage(screenSize.width,screenSize.height);
+		GraphicsConfiguration gc = GraphicsEnvironment.
+				getLocalGraphicsEnvironment().getDefaultScreenDevice().
+				getDefaultConfiguration();
+		bi = gc.createCompatibleImage(screenSize.width,screenSize.height);
 		bi.setAccelerationPriority(1);
+        VolatileImage retVal = gc.createCompatibleVolatileImage(bi.getWidth(), bi.getHeight());
 		Random rand = new Random();
-//		Data.c = Texture.values()[rand.nextInt(Data.Texture.values().length)];
-//		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
-//		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
-//		Data.shiftAmount = rand.nextInt(4) + 1;
-//		Data.stretch = rand.nextBoolean();
-//		Data.fill = rand.nextBoolean();
+		//		Data.c = Texture.values()[rand.nextInt(Data.Texture.values().length)];
+		//		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
+		//		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
+		//		Data.shiftAmount = rand.nextInt(4) + 1;
+		//		Data.stretch = rand.nextBoolean();
+		//		Data.fill = rand.nextBoolean();
 		//Data.particleNum = rand.nextInt(100) + 1;
 		Data.particleNum = 1000;
 		System.out.println(Data.s);
@@ -178,6 +180,10 @@ public class Main {
 	}
 
 	public static void update(){
+		GraphicsConfiguration gc = GraphicsEnvironment.
+				getLocalGraphicsEnvironment().getDefaultScreenDevice().
+				getDefaultConfiguration();
+        VolatileImage retVal = gc.createCompatibleVolatileImage(Data.bi.getWidth(), Data.bi.getHeight());
 		shiftColor();
 		if(Inputerface.rightClick){
 			Inputerface.rightClickList.add(MouseInfo.getPointerInfo().getLocation());
@@ -194,12 +200,14 @@ public class Main {
 				p.vY -= deltaY / 10;
 			}
 		}
-		Inputerface.rightClickList.clear();
-		Graphics2D grb = (Graphics2D)bi.getGraphics();
-		grb.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_ON); 
-		grb.setColor(Color.BLACK);
 		long t0 = System.nanoTime();
+		Inputerface.rightClickList.clear();
+		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
+		Graphics2D g2b = (Graphics2D)bi.getGraphics();
+		g2v.drawImage(Data.bi, 0, 0, null);
+		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF); 
+		g2b.setColor(Color.BLACK);
 		for(int i = 0; i < particleNum;i++){
 			Particle p = Main.particles[i];
 			double x = p.x;
@@ -212,9 +220,8 @@ public class Main {
 			int[] yA = new int[4];
 			double a = Math.atan(m2);
 			int s = p.size;
-			int v = (int)Math.ceil(p.getSpeed() * 4);
 			if(Data.stretch){
-				s = v;
+				s = (int)Math.ceil(p.getSpeed() * 4);
 			}
 			double dX = Math.cos(a) * (double)s / 2;
 			double dY = Math.sin(a) * (double)s / 2;
@@ -227,22 +234,24 @@ public class Main {
 			xA[3] = (int) (x - dX);
 			yA[3] = (int) (y - dY);
 			Polygon poly = new Polygon(xA,yA,4);
-			grb.setColor(new Color(getRGB(p)));
+			g2v.setColor(new Color(getRGB(p)));
 			//TODO Fix this flag statement with something streamline, and switch this Data.s to a switch-case thing
 			if(Data.s == Shape.LINE){
-				grb.drawLine((int)lastX, (int)lastY, (int)x, (int)y);
+				g2v.drawLine((int)lastX, (int)lastY, (int)x, (int)y);
 			}
 			else if(fill){
-				if(Data.s != Shape.CIRCLE)grb.fillPolygon(poly);
-				if(Data.s != Shape.RECTANGLE)grb.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+				if(Data.s != Shape.CIRCLE)g2v.fillPolygon(poly);
+				if(Data.s != Shape.RECTANGLE)g2v.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 			else{
-				if(Data.s != Shape.CIRCLE)grb.drawPolygon(poly);
-				if(Data.s != Shape.RECTANGLE)grb.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+				if(Data.s != Shape.CIRCLE)g2v.drawPolygon(poly);
+				if(Data.s != Shape.RECTANGLE)g2v.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 		}
+		g2b.drawImage(retVal, 0, 0, null);
 		long t1 = System.nanoTime();
-		System.out.print((t1 - t0) / 1000000 + " ");
+		mainLag = (int) ((t1 - t0) / 1000000);
+		System.out.print(mainLag + " ");
 		System.out.println(panelLag);
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
