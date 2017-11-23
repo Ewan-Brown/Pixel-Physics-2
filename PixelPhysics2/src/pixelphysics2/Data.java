@@ -22,10 +22,10 @@ public class Data {
 	static Shape s = Shape.BOTH;
 	static double colorWheelMultiplier = 1;
 	static boolean colorWheelFlip = false;
-	static boolean fade = true;
 	static boolean stretch = true;
 	public static int[] RGB = new int[3];
 	public static int RGB_switch = 1;
+	public static boolean paint = false;
 	public static int shiftAmount = 1;
 	static boolean fill = true;
 	static BufferedImage bi;

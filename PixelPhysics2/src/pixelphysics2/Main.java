@@ -65,6 +65,26 @@ public class Main {
 			particles[i].vY += yD;
 		}
 	}
+	public static void randomize(){
+		Data.t = Texture.values()[rand.nextInt(Data.Texture.values().length)];
+		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
+		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
+		Data.colorWheelFlip = rand.nextBoolean();
+		Data.shiftAmount = rand.nextInt(4) + 1;
+		Data.stretch = rand.nextBoolean();
+		Data.fill = rand.nextBoolean();
+	}
+	public static void resetParticles(){
+		Data.particleNum = rand.nextInt(700) + 1;
+		particles = new Particle[particleNum];
+		for (int i = 0 ;i  < particleNum;i++) {
+			int x = (int)(Math.random() * 2000);
+			int y = (int)(Math.random() * 1000);
+			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
+			particles[i].RGB = rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
+			particles[i].size = rand.nextInt(10)+10;
+		}
+	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -77,36 +97,9 @@ public class Main {
 		Random rand = new Random();
 		Data.BackWidth = bi.getWidth();
 		Data.BackHeight = bi.getHeight();
-		Data.t = Texture.values()[rand.nextInt(Data.Texture.values().length)];
-		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
-		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
-		Data.colorWheelFlip = rand.nextBoolean();
-		Data.shiftAmount = rand.nextInt(4) + 1;
-		Data.stretch = rand.nextBoolean();
-		Data.fill = rand.nextBoolean();
-		Data.particleNum = rand.nextInt(700) + 1;
-		
-		Data.t = Texture.MOUSE_LOCATION;
-		Data.s = Shape.BOTH;
-		Data.colorWheelMultiplier = 5;
-		Data.colorWheelFlip = true;
-		Data.stretch = false;
-		Data.fill = true;
-		Data.particleNum = 1000;
-		particles = new Particle[particleNum];
+		randomize();
+		resetParticles();
 		System.setProperty("sun.java2d.opengl","True");
-		for (int i = 0 ;i  < particleNum;i++) {
-			int x = (int)(Math.random() * 2000);
-			int y = (int)(Math.random() * 1000);
-			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
-			particles[i].RGB = rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
-			particles[i].size = rand.nextInt(10)+10;
-			//FIXME Particles must be 4 size or bigger or else DrawOval() draws a square
-			//	int rgb = r << 16 | g << 8 | b ;
-			//	int r = rgb >> 16 & 0XFF;
-			//	int g = rgb >> 8 & 0XFF;
-			//	int b = rgb & 0XFF;
-		}
 		new GamePanel();
 		while(true){
 			tick++;
@@ -206,6 +199,11 @@ public class Main {
 			r = (int) Math.floor(w * 255);
 			g = (int) Math.floor(h * 255);
 			b = (int) Math.floor((1-h) * (1-w) * 255);
+			if(Data.colorWheelFlip){
+				r = 255 - r;
+				g = 255 - g;
+				b = 255 - b;
+			}
 			if(r < 0){
 				r = 0;
 			}
@@ -247,7 +245,13 @@ public class Main {
 		long t0 = System.nanoTime();
 		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
 		Graphics2D g2b = (Graphics2D)bi.getGraphics();
-		g2v.drawImage(Data.bi, 0, 0, null);
+		if(Data.paint){
+			g2v.drawImage(Data.bi, 0, 0, null);
+		}
+		else{
+			g2v.setColor(Color.BLACK);
+			g2v.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+		}
 		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF); 
 		g2b.setColor(Color.BLACK);

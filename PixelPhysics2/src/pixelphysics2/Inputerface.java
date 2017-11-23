@@ -15,10 +15,26 @@ public class Inputerface implements MouseListener, KeyListener{
 	static Point lastLeftClickPress = null;
 	static Long lastLeftClickTime = null;
 	static int[] cooldowns = new int[256];
-	static int keyCooldown = 300;
+	static int keyCooldown = 30;
 	public static void updateKeys(){
 		for(int i = 0; i < cooldowns.length;i++){
 			cooldowns[i]--;
+		}
+		if(isKeyFresh(KeyEvent.VK_SPACE)){
+			cooldowns[KeyEvent.VK_SPACE] = 2;
+			Data.bi.getGraphics().clearRect(0, 0, 10000, 10000);
+		}
+		if(isKeyFresh(KeyEvent.VK_E)){
+			cooldowns[KeyEvent.VK_E] = keyCooldown;
+			Main.randomize();
+		}
+		if(isKeyFresh(KeyEvent.VK_R)){
+			cooldowns[KeyEvent.VK_R] = keyCooldown;
+			Main.resetParticles();
+		}
+		if(isKeyFresh(KeyEvent.VK_P)){
+			cooldowns[KeyEvent.VK_P] = keyCooldown;
+			Data.paint = !Data.paint;
 		}
 	}
 	public static boolean isKeyFresh(int key){
