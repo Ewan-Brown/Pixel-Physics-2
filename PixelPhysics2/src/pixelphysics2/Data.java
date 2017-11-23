@@ -29,5 +29,6 @@ public class Data {
 	public static int shiftAmount = 1;
 	static boolean fill = true;
 //	static BufferedImage bi;
-	static VolatileImage bi;
+	static VolatileImage vImage;
+	static VolatileImage backgroundImage;
 }

@@ -1,11 +1,12 @@
 package pixelphysics2;
 
+import java.awt.Color;
+import java.awt.Graphics;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 
 public class Inputerface implements MouseListener, KeyListener{
 
@@ -22,7 +23,10 @@ public class Inputerface implements MouseListener, KeyListener{
 		}
 		if(isKeyFresh(KeyEvent.VK_SPACE)){
 			cooldowns[KeyEvent.VK_SPACE] = 2;
-			Data.bi.getGraphics().clearRect(0, 0, 10000, 10000);
+			Graphics g = Data.vImage.getGraphics();
+			g.setColor(new Color(Main.rand.nextInt(255),Main.rand.nextInt(255),Main.rand.nextInt(255)));
+//			g.setColor(Color.WHITE);
+			g.fillRect(0, 0, Data.vImage.getWidth(), Data.vImage.getHeight());
 		}
 		if(isKeyFresh(KeyEvent.VK_E)){
 			cooldowns[KeyEvent.VK_E] = keyCooldown;
@@ -30,11 +34,16 @@ public class Inputerface implements MouseListener, KeyListener{
 		}
 		if(isKeyFresh(KeyEvent.VK_R)){
 			cooldowns[KeyEvent.VK_R] = keyCooldown;
-			Main.resetParticles();
+			Main.resetParticles(false);
+		}
+		if(isKeyFresh(KeyEvent.VK_T)){
+			cooldowns[KeyEvent.VK_T] = keyCooldown;
+			Main.resetParticles(true);
 		}
 		if(isKeyFresh(KeyEvent.VK_P)){
 			cooldowns[KeyEvent.VK_P] = keyCooldown;
 			Data.paint = !Data.paint;
+//			Main.resetBackground();
 		}
 	}
 	public static boolean isKeyFresh(int key){

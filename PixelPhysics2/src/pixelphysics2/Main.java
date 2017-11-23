@@ -2,13 +2,14 @@ package pixelphysics2;
 
 import static pixelphysics2.Data.RGB;
 import static pixelphysics2.Data.RGB_switch;
-import static pixelphysics2.Data.bi;
 import static pixelphysics2.Data.fill;
 import static pixelphysics2.Data.particleNum;
 import static pixelphysics2.Data.shiftAmount;
+import static pixelphysics2.Data.vImage;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
@@ -18,7 +19,6 @@ import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
 import java.awt.image.VolatileImage;
-import java.util.ArrayList;
 import java.util.Random;
 
 import pixelphysics2.Data.Shape;
@@ -31,6 +31,8 @@ public class Main {
 	static Point move;
 	static int mainLag = 0;
 	static int panelLag = 0;
+	static Point lastMouse = null;
+	static int lastMouseRGB = 0;
 	public static void shiftColor(){
 		RGB[RGB_switch] += shiftAmount;
 		if(RGB[RGB_switch] > 255){
@@ -72,10 +74,24 @@ public class Main {
 		Data.shiftAmount = rand.nextInt(4) + 1;
 		Data.stretch = rand.nextBoolean();
 		Data.fill = rand.nextBoolean();
+		//		Data.t = Texture.MOUSE_LOCATION;
+		//		Data.s = Shape.CIRCLE;
+		//		Data.fill = true;
+		//		Data.stretch = false;
+		//		System.out.println(Data.t + " " + Data.s + " " + Data.stretch);
 	}
-	public static void resetParticles(){
-		Data.particleNum = rand.nextInt(700) + 1;
-		Data.particleNum = 10;
+	public static void resetParticles(boolean flag){
+		Data.particleNum += Data.particleNum / ((flag) ? 10 : -10);
+		particles = new Particle[particleNum];
+		for (int i = 0 ;i  < particleNum;i++) {
+			int x = (int)(Math.random() * 2000);
+			int y = (int)(Math.random() * 1000);
+			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
+			particles[i].RGB = rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
+			particles[i].size = rand.nextInt(10)+10;
+		}
+	}public static void resetParticles(){
+		Data.particleNum = rand.nextInt(1000) + 1;
 		particles = new Particle[particleNum];
 		for (int i = 0 ;i  < particleNum;i++) {
 			int x = (int)(Math.random() * 2000);
@@ -85,6 +101,21 @@ public class Main {
 			particles[i].size = rand.nextInt(10)+10;
 		}
 	}
+	public static void resetBackground(){
+//		if(Data.backgroundImage != null){
+//			Data.backgroundImage.flush();
+//		}
+//		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+//		GraphicsConfiguration gc = GraphicsEnvironment.
+//				getLocalGraphicsEnvironment().getDefaultScreenDevice().
+//				getDefaultConfiguration();
+//		VolatileImage t = gc.createCompatibleVolatileImage(screenSize.width,screenSize.height);
+//		Graphics g = t.createGraphics();
+//		g.setColor(new Color(Data.RGB[0],Data.RGB[1],Data.RGB[2]));
+////		g.setColor(Color.GREEN);
+//		g.fillRect(0, 0, (int)screenSize.getWidth(), (int)screenSize.getHeight());
+//		Data.backgroundImage = t;
+	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
 		System.setProperty("sun.java2d.opengl","True");
@@ -92,13 +123,14 @@ public class Main {
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
-		bi = gc.createCompatibleVolatileImage(screenSize.width,screenSize.height);
-		bi.setAccelerationPriority(1);
+		vImage = gc.createCompatibleVolatileImage(screenSize.width,screenSize.height);
+		vImage.setAccelerationPriority(1);
 		Random rand = new Random();
-		Data.BackWidth = bi.getWidth();
-		Data.BackHeight = bi.getHeight();
+		Data.BackWidth = vImage.getWidth();
+		Data.BackHeight = vImage.getHeight();
 		randomize();
 		resetParticles();
+		resetBackground();
 		new GamePanel();
 		while(true){
 			tick++;
@@ -191,28 +223,7 @@ public class Main {
 			}
 			return r << 16 | g << 8 | b ;
 		case MOUSE_LOCATION:
-			int x = MouseInfo.getPointerInfo().getLocation().x;
-			int y = MouseInfo.getPointerInfo().getLocation().y;
-			double w = (double)x / (double)Data.BackWidth;
-			double h = (double)y / (double)Data.BackHeight;
-			r = (int) Math.floor(w * 255);
-			g = (int) Math.floor(h * 255);
-			b = (int) Math.floor((1-h) * (1-w) * 255);
-			if(Data.colorWheelFlip){
-				r = 255 - r;
-				g = 255 - g;
-				b = 255 - b;
-			}
-			if(r < 0){
-				r = 0;
-			}
-			if(g < 0){
-				g = 0;
-			}
-			if(b < 0){
-				b = 0;
-			}
-			return r << 16 | g << 8 | b ;
+			return lastMouseRGB;
 		default:
 			System.err.println("TEXTURE VALUE NOT RECOGNIZED: " + Data.t);
 			return 0;
@@ -220,15 +231,35 @@ public class Main {
 	}
 
 	public static void update(){
-
-		ArrayList<Long> longs = new ArrayList<Long>();
-		longs.add(System.nanoTime());
+		lastMouse = MouseInfo.getPointerInfo().getLocation();
+		double w = (double)lastMouse.x / (double)Data.BackWidth;
+		double h = (double)lastMouse.y / (double)Data.BackHeight;
+		int r = (int) Math.floor(w * 255);
+		int g = (int) Math.floor(h * 255);
+		int b = (int) Math.floor((1-h) * (1-w) * 255);
+		if(Data.colorWheelFlip){
+			r = 255 - r;
+			g = 255 - g;
+			b = 255 - b;
+		}
+		if(r < 0){
+			r = 0;
+		}
+		if(g < 0){
+			g = 0;
+		}
+		if(b < 0){
+			b = 0;
+		}
+		lastMouseRGB = r << 16 | g << 8 | b ;
+		//		ArrayList<Long> longs = new ArrayList<Long>();
+		//		longs.add(System.nanoTime());
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
-		VolatileImage retVal = gc.createCompatibleVolatileImage(Data.bi.getWidth(), Data.bi.getHeight());
+		VolatileImage retVal = gc.createCompatibleVolatileImage(Data.vImage.getWidth(), Data.vImage.getHeight());
 		shiftColor();
-		longs.add(System.nanoTime());
+		//		longs.add(System.nanoTime());
 		for(int j = 0; j < Main.particles.length;j++){
 			Particle p = Main.particles[j];
 			int baseX = MouseInfo.getPointerInfo().getLocation().x;
@@ -245,17 +276,20 @@ public class Main {
 
 		}
 
-		longs.add(System.nanoTime());
+		//		longs.add(System.nanoTime());
 		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
-		Graphics2D g2b = (Graphics2D)bi.getGraphics();
+		Graphics2D g2b = (Graphics2D)vImage.getGraphics();
 		if(Data.paint){
-			g2v.drawImage(Data.bi, 0, 0, null);
+			g2v.drawImage(Data.vImage, 0, 0, null);
 		}
+//		else{
+//			g2v.drawImage(Data.backgroundImage, 0, 0, null);
+//		}
 		else{
 			g2v.setColor(Color.BLACK);
-			g2v.fillRect(0, 0, bi.getWidth(), bi.getHeight());
+			g2v.fillRect(0, 0, vImage.getWidth(), vImage.getHeight());
 		}
-		longs.add(System.nanoTime());
+		//		longs.add(System.nanoTime());
 		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF); 
 		g2b.setColor(Color.BLACK);
@@ -299,18 +333,18 @@ public class Main {
 				if(Data.s != Shape.RECTANGLE)g2v.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 		}
-		longs.add(System.nanoTime());
+		//		longs.add(System.nanoTime());
 		g2b.drawImage(retVal, 0, 0, null);
 		//This flush is needed or else huge lag happens
 		retVal.flush();
-		longs.add(System.nanoTime());
-		int tT = (int) ((longs.get(longs.size()-1) - longs.get(0)) / 1000000);
-		System.out.print(String.format("%1$3s", tT));
-		for(int i = 1; i < longs.size();i++){
-			int t = (int) ((longs.get(i) - longs.get(i-1)) / 1000000);
-			System.out.print(String.format("%1$3s", t) + " ");
-		}
-		System.out.println("");
+		//		longs.add(System.nanoTime());
+		//		int tT = (int) ((longs.get(longs.size()-1) - longs.get(0)) / 1000000);
+		//		System.out.print(String.format("%1$3s", tT));
+		//		for(int i = 1; i < longs.size();i++){
+		//			int t = (int) ((longs.get(i) - longs.get(i-1)) / 1000000);
+		//			System.out.print(String.format("%1$3s", t) + " ");
+		//		}
+//		System.out.println("");
 		//		long t1 = System.nanoTime();
 		//mainLag = (int) ((t1 - t0) / 1000000);
 		//System.out.print(mainLag + " ");

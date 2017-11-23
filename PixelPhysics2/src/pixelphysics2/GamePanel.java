@@ -36,7 +36,7 @@ public class GamePanel extends JPanel implements Runnable{
 		long t0 = System.nanoTime();
 		int xOff = this.getLocationOnScreen().x;
 		int yOff = this.getLocationOnScreen().y;
-		gr.drawImage(Data.bi, 0 - xOff, 0 - yOff, null);
+		gr.drawImage(Data.vImage, 0 - xOff, 0 - yOff, null);
 		long t1 = System.nanoTime();
 		Main.panelLag = (int) (t1 - t0) /1000000;
 	}
