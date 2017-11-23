@@ -6,7 +6,6 @@ import static pixelphysics2.Data.bi;
 import static pixelphysics2.Data.fill;
 import static pixelphysics2.Data.particleNum;
 import static pixelphysics2.Data.shiftAmount;
-import static pixelphysics2.Data.ParticleRangeWidth;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -18,8 +17,8 @@ import java.awt.Point;
 import java.awt.Polygon;
 import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
+import java.util.ArrayList;
 import java.util.Random;
 
 import pixelphysics2.Data.Shape;
@@ -76,6 +75,7 @@ public class Main {
 	}
 	public static void resetParticles(){
 		Data.particleNum = rand.nextInt(700) + 1;
+		Data.particleNum = 10;
 		particles = new Particle[particleNum];
 		for (int i = 0 ;i  < particleNum;i++) {
 			int x = (int)(Math.random() * 2000);
@@ -87,26 +87,25 @@ public class Main {
 	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
+		System.setProperty("sun.java2d.opengl","True");
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
-		bi = gc.createCompatibleImage(screenSize.width,screenSize.height);
+		bi = gc.createCompatibleVolatileImage(screenSize.width,screenSize.height);
 		bi.setAccelerationPriority(1);
-		VolatileImage retVal = gc.createCompatibleVolatileImage(bi.getWidth(), bi.getHeight());
 		Random rand = new Random();
 		Data.BackWidth = bi.getWidth();
 		Data.BackHeight = bi.getHeight();
 		randomize();
 		resetParticles();
-		System.setProperty("sun.java2d.opengl","True");
 		new GamePanel();
 		while(true){
 			tick++;
 			update();
 			Inputerface.updateKeys();
 			try {
-				Thread.sleep(10);
+				Thread.sleep(5);
 			} catch (InterruptedException e) {
 			}
 			for(int i = 0; i < particleNum;i++){
@@ -221,11 +220,15 @@ public class Main {
 	}
 
 	public static void update(){
+
+		ArrayList<Long> longs = new ArrayList<Long>();
+		longs.add(System.nanoTime());
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
 		VolatileImage retVal = gc.createCompatibleVolatileImage(Data.bi.getWidth(), Data.bi.getHeight());
 		shiftColor();
+		longs.add(System.nanoTime());
 		for(int j = 0; j < Main.particles.length;j++){
 			Particle p = Main.particles[j];
 			int baseX = MouseInfo.getPointerInfo().getLocation().x;
@@ -242,7 +245,7 @@ public class Main {
 
 		}
 
-		long t0 = System.nanoTime();
+		longs.add(System.nanoTime());
 		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
 		Graphics2D g2b = (Graphics2D)bi.getGraphics();
 		if(Data.paint){
@@ -252,6 +255,7 @@ public class Main {
 			g2v.setColor(Color.BLACK);
 			g2v.fillRect(0, 0, bi.getWidth(), bi.getHeight());
 		}
+		longs.add(System.nanoTime());
 		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
 				RenderingHints.VALUE_ANTIALIAS_OFF); 
 		g2b.setColor(Color.BLACK);
@@ -295,11 +299,22 @@ public class Main {
 				if(Data.s != Shape.RECTANGLE)g2v.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
 			}
 		}
+		longs.add(System.nanoTime());
 		g2b.drawImage(retVal, 0, 0, null);
-		long t1 = System.nanoTime();
-		mainLag = (int) ((t1 - t0) / 1000000);
-		//		System.out.print(mainLag + " ");
-		//		System.out.println(panelLag);
+		//This flush is needed or else huge lag happens
+		retVal.flush();
+		longs.add(System.nanoTime());
+		int tT = (int) ((longs.get(longs.size()-1) - longs.get(0)) / 1000000);
+		System.out.print(String.format("%1$3s", tT));
+		for(int i = 1; i < longs.size();i++){
+			int t = (int) ((longs.get(i) - longs.get(i-1)) / 1000000);
+			System.out.print(String.format("%1$3s", t) + " ");
+		}
+		System.out.println("");
+		//		long t1 = System.nanoTime();
+		//mainLag = (int) ((t1 - t0) / 1000000);
+		//System.out.print(mainLag + " ");
+		//System.out.println(panelLag);
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
 		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));

@@ -28,5 +28,6 @@ public class Data {
 	public static boolean paint = false;
 	public static int shiftAmount = 1;
 	static boolean fill = true;
-	static BufferedImage bi;
+//	static BufferedImage bi;
+	static VolatileImage bi;
 }
