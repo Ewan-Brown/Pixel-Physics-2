@@ -10,7 +10,7 @@ import java.util.ArrayList;
 public class Inputerface implements MouseListener, KeyListener{
 
 	public static boolean[] keySet = new boolean[256];
-	static ArrayList<Point> rightClickList = new ArrayList<Point>();
+//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
 	static boolean rightClick = false;
 	static Point lastLeftClickPress = null;
 	static Long lastLeftClickTime = null;

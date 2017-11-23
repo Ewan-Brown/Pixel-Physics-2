@@ -7,16 +7,18 @@ import java.util.Random;
 public class Data {
 	
 	static int particleNum = 50;
-	static int width = 10;
-	static int height = 20;
+	static int ParticleRangeWidth = 10;
 	static Random rand = new Random();
+	static int Seed = rand.nextInt();
+	static int BackWidth = 0;
+	static int BackHeight = 0;
 	enum Texture{
-		INDIVIDUAL, SPEED, CLASSIC, ANGLE
+		INDIVIDUAL, SPEED, CLASSIC, ANGLE, MOUSE_DISTANCE, MOUSE_LOCATION
 	}
 	enum Shape{
 		BOTH, CIRCLE, RECTANGLE, LINE
 	}
-	static Texture c = Texture.INDIVIDUAL;
+	static Texture t = Texture.INDIVIDUAL;
 	static Shape s = Shape.BOTH;
 	static double colorWheelMultiplier = 1;
 	static boolean colorWheelFlip = false;
