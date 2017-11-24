@@ -25,6 +25,7 @@ public class Particle {
 		return Math.sqrt(vX * vX + vY * vY);
 	}
 	public double getAngle(){
+//		return FastMath.atan2(-vY, vX);
 		return Math.atan2(-vY, vX);
 	}
 

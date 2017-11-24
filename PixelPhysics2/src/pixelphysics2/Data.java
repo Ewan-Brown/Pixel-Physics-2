@@ -1,25 +1,25 @@
 package pixelphysics2;
 
-import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.Random;
 
 public class Data {
-	
+	static int maxParticleNum = 1000;
 	static int particleNum = 50;
 	static int ParticleRangeWidth = 10;
 	static Random rand = new Random();
 	static int Seed = rand.nextInt();
 	static int BackWidth = 0;
 	static int BackHeight = 0;
+	static boolean lowPerformance = true;
 	enum Texture{
 		INDIVIDUAL, SPEED, CLASSIC, ANGLE, MOUSE_DISTANCE, MOUSE_LOCATION
 	}
 	enum Shape{
-		BOTH, CIRCLE, RECTANGLE, LINE
+		FULL, HEAD, TAIL, LINE, DOT
 	}
 	static Texture t = Texture.INDIVIDUAL;
-	static Shape s = Shape.BOTH;
+	static Shape s = Shape.FULL;
 	static double colorWheelMultiplier = 1;
 	static boolean colorWheelFlip = false;
 	static boolean stretch = true;
@@ -30,5 +30,5 @@ public class Data {
 	static boolean fill = true;
 //	static BufferedImage bi;
 	static VolatileImage vImage;
-	static VolatileImage backgroundImage;
+	static int lastMouseRGB = 0;
 }
