@@ -9,8 +9,6 @@ public class Particle {
 		this.y = y;
 		this.lastX = x;
 		this.lastY = y;
-		this.vX = vX;
-		this.vY = vY;
 	}
 	int size = 20;
 	double x = 0;
@@ -19,14 +17,24 @@ public class Particle {
 	double lastY = 0;
 	double vY = 0;
 	double vX = 0;
+	double vXP = 0;
+	double vYP = 0;
 	double lastMouseDist = 0;
 	int RGB = Color.WHITE.getRGB();
 	public double getSpeed(){
 		return Math.sqrt(vX * vX + vY * vY);
 	}
+
+	public double getXV(){
+		return vX + vXP;
+	}
+	public double getYV(){
+		return vY + vYP;
+	}
 	public double getAngle(){
 //		return FastMath.atan2(-vY, vX);
-		return Math.atan2(-vY, vX);
+//		return Math.atan2(-(vY+vYP) , vX+vXP);
+		return Math.atan2(-(vY) , vX);
 	}
 
 }

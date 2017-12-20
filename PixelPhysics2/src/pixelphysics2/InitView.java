@@ -12,7 +12,7 @@ import javax.swing.JToggleButton;
 
 public class InitView {
 
-	private JFrame frame;
+	public JFrame frame;
 	
 	/**
 	 * Launch the application.

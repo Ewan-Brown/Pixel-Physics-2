@@ -46,7 +46,7 @@ public class GamePanel extends JPanel implements Runnable{
 				+ "E to randomize\n"
 				+ "R to reset particles \n"
 				+ "P to toggle persistant paint\n"
-				+ "Space to erase paint\n"
+				+ "Space to erase paint\n"			
 				, 10, 20);
 	}
 	void drawString(Graphics g, String text, int x, int y) {

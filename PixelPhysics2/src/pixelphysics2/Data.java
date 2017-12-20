@@ -22,7 +22,8 @@ public class Data {
 	static Shape s = Shape.FULL;
 	static double colorWheelMultiplier = 1;
 	static boolean colorWheelFlip = false;
-	static boolean stretch = true;
+	static boolean mouseStretch = true;
+	static boolean speedStretch = true;
 	public static int[] RGB = new int[3];
 	public static int RGB_switch = 1;
 	public static boolean paint = false;
@@ -31,4 +32,5 @@ public class Data {
 //	static BufferedImage bi;
 	static VolatileImage vImage;
 	static int lastMouseRGB = 0;
+	public static ParticleMesser pm;
 }

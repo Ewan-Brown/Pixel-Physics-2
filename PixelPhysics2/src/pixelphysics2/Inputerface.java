@@ -32,12 +32,12 @@ public class Inputerface implements MouseListener, KeyListener{
 			cooldowns[KeyEvent.VK_E] = keyCooldown;
 			Main.randomize();
 		}
+		if(isKeyFresh(KeyEvent.VK_X)){
+			cooldowns[KeyEvent.VK_X] = keyCooldown;
+			Data.pm = ParticleMesser.map.get(ParticleMesser.map.keySet().toArray()[Main.rand.nextInt(ParticleMesser.map.size())]);
+		}
 		if(isKeyFresh(KeyEvent.VK_R)){
 			cooldowns[KeyEvent.VK_R] = keyCooldown;
-			Main.resetParticles();
-		}
-		if(isKeyFresh(KeyEvent.VK_T)){
-			cooldowns[KeyEvent.VK_T] = keyCooldown;
 			Main.resetParticles();
 		}
 		if(isKeyFresh(KeyEvent.VK_P)){
@@ -47,7 +47,11 @@ public class Inputerface implements MouseListener, KeyListener{
 		}
 		if(isKeyFresh(KeyEvent.VK_S)){
 			cooldowns[KeyEvent.VK_S] = keyCooldown;
-			Data.stretch = !Data.stretch;
+			Data.mouseStretch = !Data.mouseStretch;
+		}
+		if(isKeyFresh(KeyEvent.VK_D)){
+			cooldowns[KeyEvent.VK_D] = keyCooldown;
+			Data.speedStretch = !Data.speedStretch;
 		}
 	}
 	public static boolean isKeyFresh(int key){

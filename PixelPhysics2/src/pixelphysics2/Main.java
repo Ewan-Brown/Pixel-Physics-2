@@ -27,7 +27,7 @@ import pixelphysics2.Data.Texture;
 public class Main {
 	static Particle[] particles;
 	static Random rand = new Random();
-	static int tick = 0;
+	static long tick = 0;
 	static Point move;
 	static int panelLag = 0;
 	static Point lastMouse = null;
@@ -60,8 +60,8 @@ public class Main {
 		double xD = (double)x / (mills);
 		double yD = (double)y / (mills);
 		for(int i = 0; i < particleNum; i++){
-			particles[i].vX += xD;
-			particles[i].vY += yD;
+			particles[i].vX += xD * 2;
+			particles[i].vY += yD * 2;
 		}
 	}
 	public static void randomize(){
@@ -74,9 +74,10 @@ public class Main {
 		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
 		Data.colorWheelFlip = rand.nextBoolean();
 		Data.shiftAmount = rand.nextInt(4) + 1;
-		Data.stretch = rand.nextBoolean();
+		Data.mouseStretch = rand.nextBoolean();
 		Data.fill = rand.nextBoolean();
-//		Data.t = Texture.ANGLE;
+		Data.speedStretch = rand.nextBoolean();
+//		Data.t = Texture.INDIVIDUAL;
 //		Data.s = Shape.LINE;
 //		Data.colorWheelMultiplier = 1;
 //		Data.colorWheelFlip = false;
@@ -91,12 +92,14 @@ public class Main {
 			int x = (int)(Math.random() * 2000);
 			int y = (int)(Math.random() * 1000);
 			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
-			particles[i].RGB = rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
+			particles[i].RGB = rand.nextInt(255) << 24 | rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
 			particles[i].size = rand.nextInt(10)+10;
 		}
 	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
+		ParticleMesser.init();
+		Data.pm = ParticleMesser.map.get("Normal");
 		InitView v = new InitView();
 		while(!v.finished){
 			try {
@@ -119,6 +122,7 @@ public class Main {
 		resetParticles();
 		Data.BackWidth = vImage.getWidth();
 		Data.BackHeight = vImage.getHeight();
+		v.frame.dispose();
 		new GamePanel();
 		long t0 = System.nanoTime();
 		while(true){
@@ -129,12 +133,7 @@ public class Main {
 				Inputerface.updateKeys();
 				for(int i = 0; i < particleNum;i++){
 					Particle p = particles[i];
-					p.lastX = p.x;
-					p.lastY = p.y;
-					p.x += p.vX * 4;
-					p.y += p.vY * 4;
-					p.vX -= p.vX / 200;
-					p.vY -= p.vY / 200;
+					Data.pm.doParticle(p, tick);
 				}
 			}
 		}
@@ -223,6 +222,7 @@ public class Main {
 	}
 
 	public static void update(){
+		tick++;
 		ArrayList<Long> longs = new ArrayList<Long>();
 		longs.add(System.nanoTime());
 		lastMouse = MouseInfo.getPointerInfo().getLocation();
@@ -262,9 +262,8 @@ public class Main {
 			if(Inputerface.rightClick){
 				double deltaX = (p.x - baseX) / dist;
 				double deltaY = (p.y - baseY) / dist;
-				p.vX -= deltaX / 10;
-				p.vY -= deltaY / 10;
-
+				p.vX -= deltaX / 5;
+				p.vY -= deltaY / 5;
 			}
 
 		}
@@ -298,8 +297,20 @@ public class Main {
 			int[] yA = new int[4];
 			double a = Math.atan(m2);
 			int s = p.size;
-			if(Data.stretch){
-				s = (int)Math.ceil(p.getSpeed() * 4);
+			if(Data.mouseStretch){
+				double u = -(p.lastMouseDist-230);
+				s = (int)Math.floor(Math.pow(1.02, u) + 1);
+				if(s < 0){
+					s = 1;
+				}
+				if(Data.speedStretch){
+					s /= 2;
+					s += (int)Math.ceil(p.getSpeed() * 4) / 2;
+				}
+			}
+			else if(Data.speedStretch){
+				double u = Math.ceil(p.getSpeed() * 4);
+				s = (int)u;
 			}
 			double dX = Math.cos(a) * (double)s / 2;
 			double dY = Math.sin(a) * (double)s / 2;
@@ -320,9 +331,9 @@ public class Main {
 				break;
 			case HEAD:
 				if(fill){
-					g2v.fillOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+					g2v.fillOval((int)x - s/2, (int)y - s/2, s, s);
 				}else{
-					g2v.drawOval((int)x - s/2, (int)y - s/2, s - 1, s - 1);
+					g2v.drawOval((int)x - s/2, (int)y - s/2, s, s);
 				}
 				break;
 			case TAIL:
@@ -343,9 +354,9 @@ public class Main {
 				break;
 			case DOT:
 				if(fill){
-					g2v.fillRect((int)x, (int)y, s, s);
+					g2v.fillRect((int)x - s/2, (int)y - s/2, s, s);
 				}else{
-					g2v.drawRect((int)x, (int)y, s, s);
+					g2v.drawRect((int)x - s/2, (int)y - s/2, s, s);
 				}
 				break;
 			}
