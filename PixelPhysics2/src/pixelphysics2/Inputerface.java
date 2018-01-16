@@ -10,6 +10,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
+import pixelphysics2.Data.Shape;
+import pixelphysics2.Data.Texture;
+
 public class Inputerface implements MouseListener, KeyListener, MouseWheelListener{
 	public static boolean[] keySet = new boolean[256];
 	//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
@@ -53,6 +56,19 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		if(isKeyFresh(KeyEvent.VK_D)){
 			cooldowns[KeyEvent.VK_D] = keyCooldown;
 			Data.speedStretch = !Data.speedStretch;
+		}
+		if(isKeyFresh(KeyEvent.VK_T)){
+			cooldowns[KeyEvent.VK_T] = keyCooldown;
+			Data.t = Texture.values()[(Data.t.ordinal() + 1) % Texture.values().length];
+		}
+		if(isKeyFresh(KeyEvent.VK_G)){
+			cooldowns[KeyEvent.VK_G] = keyCooldown;
+			Data.s = Shape.values()[(Data.s.ordinal() + 1) % Shape.values().length];
+		}
+		if(isKeyFresh(KeyEvent.VK_F)){
+			cooldowns[KeyEvent.VK_F] = keyCooldown;
+			Data.frictionMult = 1;
+			Data.forceMult = 1;
 		}
 	}
 	public static boolean isKeyFresh(int key){

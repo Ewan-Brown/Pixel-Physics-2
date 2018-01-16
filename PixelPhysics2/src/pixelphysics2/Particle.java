@@ -20,6 +20,7 @@ public class Particle {
 	double vXP = 0;
 	double vYP = 0;
 	double lastMouseDist = 0;
+	double lastMouseAngle = 0;
 	Particle prev;
 	Particle next;
 	int RGB = Color.WHITE.getRGB();
