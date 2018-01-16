@@ -7,11 +7,12 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 
-public class Inputerface implements MouseListener, KeyListener{
-
+public class Inputerface implements MouseListener, KeyListener, MouseWheelListener{
 	public static boolean[] keySet = new boolean[256];
-//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
+	//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
 	static boolean rightClick = false;
 	static Point lastLeftClickPress = null;
 	static Long lastLeftClickTime = null;
@@ -25,7 +26,7 @@ public class Inputerface implements MouseListener, KeyListener{
 			cooldowns[KeyEvent.VK_SPACE] = 2;
 			Graphics g = Data.vImage.getGraphics();
 			g.setColor(new Color(Main.rand.nextInt(255),Main.rand.nextInt(255),Main.rand.nextInt(255)));
-//			g.setColor(Color.WHITE);
+			//			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, Data.vImage.getWidth(), Data.vImage.getHeight());
 		}
 		if(isKeyFresh(KeyEvent.VK_E)){
@@ -43,7 +44,7 @@ public class Inputerface implements MouseListener, KeyListener{
 		if(isKeyFresh(KeyEvent.VK_P)){
 			cooldowns[KeyEvent.VK_P] = keyCooldown;
 			Data.paint = !Data.paint;
-//			Main.resetBackground();
+			//			Main.resetBackground();
 		}
 		if(isKeyFresh(KeyEvent.VK_S)){
 			cooldowns[KeyEvent.VK_S] = keyCooldown;
@@ -91,7 +92,18 @@ public class Inputerface implements MouseListener, KeyListener{
 	}
 	@Override
 	public void keyTyped(KeyEvent e) {
-		
-	}	
 
+	}
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e) {
+		if(keySet[KeyEvent.VK_SHIFT]){
+			Data.frictionMult -= Data.frictionMult * (double)e.getWheelRotation() * -1 / 20D;
+			if(Data.frictionMult < 0.001){
+				Data.frictionMult = 0.001;
+			}
+		}
+		else{
+			Data.forceMult += (double)e.getWheelRotation() * -1 / 20D;
+		}
+	}	
 }

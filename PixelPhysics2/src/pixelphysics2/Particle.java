@@ -20,6 +20,8 @@ public class Particle {
 	double vXP = 0;
 	double vYP = 0;
 	double lastMouseDist = 0;
+	Particle prev;
+	Particle next;
 	int RGB = Color.WHITE.getRGB();
 	public double getSpeed(){
 		return Math.sqrt(vX * vX + vY * vY);

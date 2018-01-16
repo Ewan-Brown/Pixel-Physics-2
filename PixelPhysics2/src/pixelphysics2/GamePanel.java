@@ -20,6 +20,7 @@ public class GamePanel extends JPanel implements Runnable{
 		Inputerface i = new Inputerface();
 		addMouseListener(i);
 		addKeyListener(i);
+		addMouseWheelListener(i);
 		setFocusable(true);
 		f = new JFrame("GamePanel");
 		f.setSize(500,500);

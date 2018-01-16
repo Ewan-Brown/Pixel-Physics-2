@@ -31,7 +31,6 @@ public class FastMath {
 	public static final double atan2(double y, double x)
 	{
 		double add, mul;
-
 		if (x < 0.0f)
 		{
 			if (y < 0.0f)
@@ -46,7 +45,6 @@ public class FastMath {
 				x = -x;
 				mul = -1.0f;
 			}
-
 			add = -3.141592653f;
 		}
 		else

@@ -5,6 +5,9 @@ import java.util.Hashtable;
 public class ParticleMesser {
 
 	public static Hashtable<String, ParticleMesser> map = new Hashtable<String, ParticleMesser>();
+	public double getFriction(){
+		return Data.frictionMult * 200;
+	}
 	public static void init(){
 		map.put("Normal", new ParticleMesser(){
 			public void doParticle(Particle p,long tick){
@@ -12,8 +15,8 @@ public class ParticleMesser {
 				p.lastY = p.y;
 				p.x += p.getXV();
 				p.y += p.getYV();
-				p.vX -= p.vX / 200;
-				p.vY -= p.vY / 200;
+				p.vX -= p.vX / getFriction();
+				p.vY -= p.vY / getFriction();
 			}
 		});
 		map.put("Color", new ParticleMesser(){
@@ -25,8 +28,8 @@ public class ParticleMesser {
 			double a = alpha / 256;
 			p.x += p.getXV() * a;
 			p.y += p.getYV() * a;
-			p.vX -= p.vX / 200;
-			p.vY -= p.vY / 200;
+			p.vX -= p.vX / getFriction();
+			p.vY -= p.vY / getFriction();
 		}
 	});
 		map.put("Reverse", new ParticleMesser(){
@@ -35,8 +38,8 @@ public class ParticleMesser {
 				p.lastY = p.y;
 				p.x -= p.getXV();
 				p.y -= p.getYV();
-				p.vX -= p.vX / 200;
-				p.vY -= p.vY / 200;
+				p.vX -= p.vX / getFriction();
+				p.vY -= p.vY / getFriction();
 			}
 		});
 		map.put("Straight", new ParticleMesser(){
@@ -49,8 +52,8 @@ public class ParticleMesser {
 				else{
 					p.y += Math.signum(p.getYV()) * 5;
 				}
-				p.vX -= p.vX / 200;
-				p.vY -= p.vY / 200;
+				p.vX -= p.vX / getFriction();
+				p.vY -= p.vY / getFriction();
 			}
 		});
 		map.put("StraightSlidey", new ParticleMesser(){
@@ -63,8 +66,8 @@ public class ParticleMesser {
 				else{
 					p.y += p.getYV();
 				}
-				p.vX -= p.vX / 200;
-				p.vY -= p.vY / 200;
+				p.vX -= p.vX / getFriction();
+				p.vY -= p.vY / getFriction();
 			}
 		});
 		map.put("Spiral", new ParticleMesser(){
@@ -101,10 +104,10 @@ public class ParticleMesser {
 				p.vYP = yP2;
 				p.x += p.getXV() / z;
 				p.y += p.getYV() / z;
-				p.vX -= p.vX / 200;
-				p.vY -= p.vY / 200;
-				p.vXP -= p.vXP / 200;
-				p.vYP -= p.vYP / 200;
+				p.vX -= p.vX / getFriction();
+				p.vY -= p.vY / getFriction();
+				p.vXP -= p.vXP / getFriction();
+				p.vYP -= p.vYP / getFriction();
 			}
 		});
 	}

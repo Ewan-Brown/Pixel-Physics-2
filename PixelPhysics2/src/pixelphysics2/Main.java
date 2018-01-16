@@ -64,26 +64,29 @@ public class Main {
 			particles[i].vY += yD * 2;
 		}
 	}
+	static ArrayList<Integer> lowPerfModes = new ArrayList<Integer>();
 	public static void randomize(){
 		Data.t = Texture.values()[rand.nextInt(Data.Texture.values().length)];
 		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
 		if(Data.lowPerformance){
-			if(rand.nextBoolean())Data.s = Shape.DOT;
-			else Data.s = Shape.LINE;
+			int z = lowPerfModes.get(rand.nextInt(lowPerfModes.size()));
+			System.out.println(" " +z);
+			Data.s = Shape.values()[z];
 		}
+		Data.s = Shape.TRIANGLES;
 		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
 		Data.colorWheelFlip = rand.nextBoolean();
 		Data.shiftAmount = rand.nextInt(4) + 1;
 		Data.mouseStretch = rand.nextBoolean();
 		Data.fill = rand.nextBoolean();
 		Data.speedStretch = rand.nextBoolean();
-//		Data.t = Texture.INDIVIDUAL;
-//		Data.s = Shape.LINE;
-//		Data.colorWheelMultiplier = 1;
-//		Data.colorWheelFlip = false;
-//		Data.shiftAmount = 1;
-//		Data.stretch = false;
-//		Data.fill = true;
+		//		Data.t = Texture.INDIVIDUAL;
+		//		Data.s = Shape.LINE;
+		//		Data.colorWheelMultiplier = 1;
+		//		Data.colorWheelFlip = false;
+		//		Data.shiftAmount = 1;
+		//		Data.stretch = false;
+		//		Data.fill = true;
 	}
 	public static void resetParticles(){
 		Data.particleNum = rand.nextInt(Data.maxParticleNum) + 1;
@@ -92,12 +95,22 @@ public class Main {
 			int x = (int)(Math.random() * 2000);
 			int y = (int)(Math.random() * 1000);
 			particles[i] = new Particle(x + 10,y + 10,Math.random() - 0.5,Math.random() - 0.5);
+			int[] rgb = new int[3];
 			particles[i].RGB = rand.nextInt(255) << 24 | rand.nextInt(255) << 16 | rand.nextInt(255) << 8 | rand.nextInt(255);
 			particles[i].size = rand.nextInt(10)+10;
+			if(i > 0){
+				particles[i].prev = particles[i-1];
+				particles[i-1].next = particles[i];
+			}
 		}
 	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
+//		lowPerfModes.add(Shape.DOT.ordinal());
+		lowPerfModes.add(Shape.LINE.ordinal());
+		lowPerfModes.add(Shape.CONNECTMOUSE.ordinal());
+		lowPerfModes.add(Shape.CONNECTPIXEL.ordinal());
+		lowPerfModes.add(Shape.TRIANGLES.ordinal());
 		ParticleMesser.init();
 		Data.pm = ParticleMesser.map.get("Normal");
 		InitView v = new InitView();
@@ -174,9 +187,9 @@ public class Main {
 			r = (int)Math.floor((FastMath.cos(deg) * 255));
 			g = (int)Math.floor((FastMath.cos(deg + 120f) * 255));
 			b = (int)Math.floor((FastMath.cos(deg + 240f) * 255));
-//			r = (int)Math.floor((Math.cos(deg) * 255));
-//			g = (int)Math.floor((Math.cos(deg + 2.0944) * 255));
-//			b = (int)Math.floor((Math.cos(deg + 4.18879) * 255));
+			//			r = (int)Math.floor((Math.cos(deg) * 255));
+			//			g = (int)Math.floor((Math.cos(deg + 2.0944) * 255));
+			//			b = (int)Math.floor((Math.cos(deg + 4.18879) * 255));
 			if(Data.colorWheelFlip){
 				r = 255 - r;
 				g = 255 - g;
@@ -246,7 +259,6 @@ public class Main {
 			b = 0;
 		}
 		Data.lastMouseRGB = r << 16 | g << 8 | b ;
-
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
@@ -262,8 +274,8 @@ public class Main {
 			if(Inputerface.rightClick){
 				double deltaX = (p.x - baseX) / dist;
 				double deltaY = (p.y - baseY) / dist;
-				p.vX -= deltaX / 5;
-				p.vY -= deltaY / 5;
+				p.vX -= deltaX*Data.forceMult / 5;
+				p.vY -= deltaY*Data.forceMult / 5;
 			}
 
 		}
@@ -274,9 +286,6 @@ public class Main {
 		if(Data.paint){
 			g2v.drawImage(Data.vImage, 0, 0, null);
 		}
-		//		else{
-		//			g2v.drawImage(Data.backgroundImage, 0, 0, null);
-		//		}
 		else{
 			g2v.setColor(Color.BLACK);
 			g2v.fillRect(0, 0, vImage.getWidth(), vImage.getHeight());
@@ -359,28 +368,45 @@ public class Main {
 					g2v.drawRect((int)x - s/2, (int)y - s/2, s, s);
 				}
 				break;
+			case CONNECTMOUSE:
+				g2v.drawLine((int)x, (int)y, lastMouse.x, lastMouse.y);
+				break;
+			case CONNECTPIXEL:
+				if(p.prev != null){
+					g2v.drawLine((int)x, (int)y, (int)p.prev.x, (int)p.prev.y);
+				}
+				break;
+			case TRIANGLES:
+				if(i % 1000 != 0 || i > particleNum - 3){
+					break;
+				}
+				//XXX TODO REMOVE ME
+				if(i != 0){
+					break;
+				}
+				Particle c = p;
+				Polygon polygon = new Polygon();
+				Polygon[] magic = new Polygon[3];
+				for(int j = 0; j < 3;j++){
+					polygon.addPoint((int)c.x, (int)c.y);
+					c = c.next;
+				}
+				if(Data.fill){
+					g2v.fill(polygon);
+				}
+				else{
+					g2v.draw(polygon);
+				}
+				break;
 			}
 			if(Data.s == Shape.LINE){
 				g2v.drawLine((int)lastX, (int)lastY, (int)x, (int)y);
 			}
 		}
-		//		longs.add(System.nanoTime());
-		
 		g2b.drawImage(retVal, 0, 0, null);
 		//This flush is needed or else huge lag happens
 		retVal.flush();
 		longs.add(System.nanoTime());
-//		int tT = (int) ((longs.get(longs.size()-1) - longs.get(0)) / 1000000);
-//		System.out.print(String.format("%1$3s", tT));
-//		for(int i = 1; i < longs.size();i++){
-//			int t = (int) ((longs.get(i) - longs.get(i-1)) / 1000000);
-//			System.out.print(String.format("%1$3s", t) + " ");
-//		}
-//		System.out.println("");
-		//		long t1 = System.nanoTime();
-		//mainLag = (int) ((t1 - t0) / 1000000);
-		//System.out.print(mainLag + " ");
-		//System.out.println(panelLag);
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
 		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));

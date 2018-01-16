@@ -11,12 +11,13 @@ public class Data {
 	static int Seed = rand.nextInt();
 	static int BackWidth = 0;
 	static int BackHeight = 0;
+	static int alpha = 100;
 	static boolean lowPerformance = true;
 	enum Texture{
 		INDIVIDUAL, SPEED, CLASSIC, ANGLE, MOUSE_DISTANCE, MOUSE_LOCATION
 	}
 	enum Shape{
-		FULL, HEAD, TAIL, LINE, DOT
+		FULL, HEAD, TAIL, LINE, DOT, CONNECTMOUSE, CONNECTPIXEL,TRIANGLES;
 	}
 	static Texture t = Texture.INDIVIDUAL;
 	static Shape s = Shape.FULL;
@@ -29,8 +30,9 @@ public class Data {
 	public static boolean paint = false;
 	public static int shiftAmount = 1;
 	static boolean fill = true;
-//	static BufferedImage bi;
 	static VolatileImage vImage;
 	static int lastMouseRGB = 0;
+	public static double forceMult = 1;
+	public static double frictionMult = 1;
 	public static ParticleMesser pm;
 }
