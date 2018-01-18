@@ -384,19 +384,49 @@ public class Main {
 				if(i != 0){
 					break;
 				}
-				Particle c = p;
 				Polygon polygon = new Polygon();
 				Polygon[] magic = new Polygon[3];
+				for(int j = 0; j < 3;j++){
+				}
+				Particle c = p;
 				for(int j = 0; j < 3;j++){
 					polygon.addPoint((int)c.x, (int)c.y);
 					c = c.next;
 				}
-				if(Data.fill){
-					g2v.fill(polygon);
-				}
-				else{
+				c = p;
+				magic[0] = new Polygon();
+				magic[1] = new Polygon();
+				magic[2] = new Polygon();
+				Polygon p0 = magic[0];
+				p0.addPoint((int)c.x, (int)c.y);
+				p0.addPoint((int)c.lastX, (int)c.lastY);
+				p0.addPoint((int)c.next.x, (int)c.next.y);
+				p0.addPoint((int)c.next.lastX, (int)c.next.lastY);
+				c = c.next;
+				Polygon p1 = magic[1];
+				p1.addPoint((int)c.x, (int)c.y);
+				p1.addPoint((int)c.lastX, (int)c.lastY);
+				p1.addPoint((int)c.next.x, (int)c.next.y);
+				p1.addPoint((int)c.next.lastX, (int)c.next.lastY);
+				c = c.next;
+				Polygon p2 = magic[1];
+//				p2.addPoint((int)c.x, (int)c.y);
+//				p2.addPoint((int)c.lastX, (int)c.lastY);
+//				p2.addPoint((int)c.prev.lastX, (int)c.prev.lastY);
+//				p2.addPoint((int)c.prev.x, (int)c.prev.y);
+				p2.addPoint((int)c.x, (int)c.y);
+				p2.addPoint((int)c.lastX, (int)c.lastY);
+				p2.addPoint((int)c.next.x, (int)c.next.y);
+				p2.addPoint((int)c.next.lastX, (int)c.next.lastY);
+//				g2v.fill(p0);
+//				g2v.fill(p1);
+				g2v.fill(p2);
+//				if(Data.fill){
+//					g2v.fill(polygon);
+//				}
+//				else{
 					g2v.draw(polygon);
-				}
+//				}
 				break;
 			}
 			if(Data.s == Shape.LINE){
