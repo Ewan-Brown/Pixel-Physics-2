@@ -32,17 +32,17 @@ public class Main {
 	static int panelLag = 0;
 	static Point lastMouse = null;
 	public static void shiftColor(){
-		RGB[RGB_switch] += shiftAmount;
-		if(RGB[RGB_switch] > 255){
-			RGB[RGB_switch] = 255;
-			switchShift();
-		}
-		else if(RGB[RGB_switch] < 1){
-			RGB[RGB_switch] = 1;
-			switchShift();
-		}
-		else if(rand.nextInt(100) < 1)
-			switchShift();
+				RGB[RGB_switch] += shiftAmount;
+				if(RGB[RGB_switch] > 255){
+					RGB[RGB_switch] = 255;
+					switchShift();
+				}
+				else if(RGB[RGB_switch] < 1){
+					RGB[RGB_switch] = 1;
+					switchShift();
+				}
+				else if(rand.nextInt(100) < 1)
+					switchShift();
 	}
 	public static void switchShift(){
 		RGB_switch = rand.nextInt(3);
@@ -70,10 +70,10 @@ public class Main {
 		Data.s = Shape.values()[rand.nextInt(Data.Shape.values().length)];
 		if(Data.lowPerformance){
 			int z = lowPerfModes.get(rand.nextInt(lowPerfModes.size()));
-			System.out.println(" " +z);
 			Data.s = Shape.values()[z];
 		}
-		Data.s = Shape.TRIANGLES;
+		//		Data.s = Shape.TRIANGLES;
+//		Data.t = Texture.CLASSIC;
 		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
 		Data.colorWheelFlip = rand.nextBoolean();
 		Data.shiftAmount = rand.nextInt(4) + 1;
@@ -106,7 +106,7 @@ public class Main {
 	}
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
-//		lowPerfModes.add(Shape.DOT.ordinal());
+		//		lowPerfModes.add(Shape.DOT.ordinal());
 		lowPerfModes.add(Shape.LINE.ordinal());
 		lowPerfModes.add(Shape.CONNECTMOUSE.ordinal());
 		lowPerfModes.add(Shape.CONNECTPIXEL.ordinal());
@@ -162,17 +162,17 @@ public class Main {
 			return p.RGB;
 		case SPEED:
 			double v = p.getSpeed();
-			r = (v > 10) ? 240 : (int)(-5*((v - 10) *(v - 10))) + 240;
+			r = (v > 20) ? 240 : (int)(-4*((v - 18) *(v - 18))) + 240;
 			if(r < 0){
 				r = 0;
 			}
 			r += 15;
-			g = (int)-(9*(v - 7) *(v - 7)) + 240;
+			g = (int)-(9*(v - 10) *(v - 10)) + 240;
 			if(g < 0){
 				g = 0;
 			}
 			g += 15;
-			b = (int)-(5*(v - 3) *(v - 3)) + 240;
+			b = (int)-(4*(v - 6) *(v - 6)) + 240;
 			if(b < 0){
 				b = 0;
 			}
@@ -182,30 +182,7 @@ public class Main {
 			return RGB[0] << 16 | RGB[1] << 8 | RGB[2] ;
 		case ANGLE:
 			double a = p.getAngle();
-			float deg = (float)Math.toDegrees((a * Data.colorWheelMultiplier));
-			//Cuts from 35-29 fps with 50000p
-			r = (int)Math.floor((FastMath.cos(deg) * 255));
-			g = (int)Math.floor((FastMath.cos(deg + 120f) * 255));
-			b = (int)Math.floor((FastMath.cos(deg + 240f) * 255));
-			//			r = (int)Math.floor((Math.cos(deg) * 255));
-			//			g = (int)Math.floor((Math.cos(deg + 2.0944) * 255));
-			//			b = (int)Math.floor((Math.cos(deg + 4.18879) * 255));
-			if(Data.colorWheelFlip){
-				r = 255 - r;
-				g = 255 - g;
-				b = 255 - b;
-			}
-			if(r < 0){
-				r = 0;
-			}
-			if(g < 0){
-				g = 0;
-			}
-			if(b < 0){
-				b = 0;
-			}
-			return r << 16 | g << 8 | b ;
-
+			return getAngleRGB(a);
 		case MOUSE_DISTANCE:
 			double d = p.lastMouseDist / Data.colorWheelMultiplier;
 			r = (int) Math.floor((-0.01*d*d+255));
@@ -228,12 +205,35 @@ public class Main {
 			return r << 16 | g << 8 | b ;
 		case MOUSE_LOCATION:
 			return Data.lastMouseRGB;
+		case MOUSE_ANGLE:
+			return getAngleRGB(p.lastMouseAngle);
 		default:
 			System.err.println("TEXTURE VALUE NOT RECOGNIZED: " + Data.t);
 			return 0;
 		}
 	}
-
+	public static int getAngleRGB(double a){
+		float deg = (float)Math.toDegrees((a * Data.colorWheelMultiplier));
+		//Cuts from 35-29 fps with 50000p
+		int r = (int)Math.floor((FastMath.cos(deg) * 255));
+		int g = (int)Math.floor((FastMath.cos(deg + 120f) * 255));
+		int b = (int)Math.floor((FastMath.cos(deg + 240f) * 255));
+		if(Data.colorWheelFlip){
+			r = 255 - r;
+			g = 255 - g;
+			b = 255 - b;
+		}
+		if(r < 0){
+			r = 0;
+		}
+		if(g < 0){
+			g = 0;
+		}
+		if(b < 0){
+			b = 0;
+		}
+		return r << 16 | g << 8 | b ;
+	}
 	public static void update(){
 		tick++;
 		ArrayList<Long> longs = new ArrayList<Long>();
@@ -270,7 +270,10 @@ public class Main {
 			int baseX = lastMouse.x;
 			int baseY = lastMouse.y;
 			double dist = getDistance(p.x, p.y, baseX, baseY);
+			double angle = 0;
 			p.lastMouseDist = dist;
+			p.lastMouseAngle = angle;
+			p.lastMouseAngle = Math.atan2(-(p.x - baseX) , p.y - baseY);
 			if(Inputerface.rightClick){
 				double deltaX = (p.x - baseX) / dist;
 				double deltaY = (p.y - baseY) / dist;

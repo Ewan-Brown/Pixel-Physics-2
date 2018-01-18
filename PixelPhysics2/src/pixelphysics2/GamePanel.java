@@ -28,6 +28,7 @@ public class GamePanel extends JPanel implements Runnable{
 		f.add(this);
 		f.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		f.setVisible(true);
+		this.setDoubleBuffered(true);
 		Thread t1 = new Thread(this);
 		t1.start();
 	}
