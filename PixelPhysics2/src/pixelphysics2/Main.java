@@ -32,17 +32,17 @@ public class Main {
 	static int panelLag = 0;
 	static Point lastMouse = null;
 	public static void shiftColor(){
-				RGB[RGB_switch] += shiftAmount;
-				if(RGB[RGB_switch] > 255){
-					RGB[RGB_switch] = 255;
-					switchShift();
-				}
-				else if(RGB[RGB_switch] < 1){
-					RGB[RGB_switch] = 1;
-					switchShift();
-				}
-				else if(rand.nextInt(100) < 1)
-					switchShift();
+		RGB[RGB_switch] += shiftAmount;
+		if(RGB[RGB_switch] > 255){
+			RGB[RGB_switch] = 255;
+			switchShift();
+		}
+		else if(RGB[RGB_switch] < 1){
+			RGB[RGB_switch] = 1;
+			switchShift();
+		}
+		else if(rand.nextInt(100) < 1)
+			switchShift();
 	}
 	public static void switchShift(){
 		RGB_switch = rand.nextInt(3);
@@ -73,10 +73,10 @@ public class Main {
 			Data.s = Shape.values()[z];
 		}
 		//		Data.s = Shape.TRIANGLES;
-//		Data.t = Texture.CLASSIC;
+		//		Data.t = Texture.CLASSIC;
 		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
 		Data.colorWheelFlip = rand.nextBoolean();
-		Data.shiftAmount = rand.nextInt(4) + 1;
+		Data.shiftAmount = rand.nextInt(6) + 1;
 		Data.mouseStretch = rand.nextBoolean();
 		Data.fill = rand.nextBoolean();
 		Data.speedStretch = rand.nextBoolean();
@@ -130,7 +130,6 @@ public class Main {
 				getDefaultConfiguration();
 		vImage = gc.createCompatibleVolatileImage(screenSize.width,screenSize.height);
 		vImage.setAccelerationPriority(1);
-		Random rand = new Random();
 		randomize();
 		resetParticles();
 		Data.BackWidth = vImage.getWidth();
@@ -142,7 +141,6 @@ public class Main {
 			if((System.nanoTime() - t0)/1000000 > 15){
 				t0 = System.nanoTime();
 				update();
-				tick++;
 				Inputerface.updateKeys();
 				for(int i = 0; i < particleNum;i++){
 					Particle p = particles[i];
@@ -157,9 +155,11 @@ public class Main {
 		int g = 0;
 		int b = 0;
 		switch(Data.t){
-
 		case INDIVIDUAL:
-			return p.RGB;
+			r = (p.RGB >> 16) & 0xFF;
+			g = (p.RGB >> 8) & 0xFF;
+			b = (p.RGB) & 0xFF;
+			break;
 		case SPEED:
 			double v = p.getSpeed();
 			r = (v > 20) ? 240 : (int)(-4*((v - 18) *(v - 18))) + 240;
@@ -177,22 +177,24 @@ public class Main {
 				b = 0;
 			}
 			b += 15;
-			return r << 16 | g << 8 | b ;
+			break;
 		case CLASSIC:
-			return RGB[0] << 16 | RGB[1] << 8 | RGB[2] ;
+			r = (RGB[0] >> 16) & 0xFF;
+			g = (RGB[1] >> 8) & 0xFF;
+			b = (RGB[2]) & 0xFF;
+			break;
 		case ANGLE:
 			double a = p.getAngle();
-			return getAngleRGB(a);
+			int RGB = getAngleRGB(a);
+			r = (RGB >> 16) & 0xFF;
+			g = (RGB >> 8) & 0xFF;
+			b = (RGB) & 0xFF;
+			break;
 		case MOUSE_DISTANCE:
 			double d = p.lastMouseDist / Data.colorWheelMultiplier;
 			r = (int) Math.floor((-0.01*d*d+255));
 			g = (int) Math.floor((-0.005*(d-200)*(d-200)+255));
 			b = (int) Math.floor((-0.0025*(d-600)*(d-600)+255));
-			if(Data.colorWheelFlip){
-				r = 255 - r;
-				g = 255 - g;
-				b = 255 - b;
-			}
 			if(r < 0){
 				r = 0;
 			}
@@ -202,15 +204,29 @@ public class Main {
 			if(b < 0){
 				b = 0;
 			}
-			return r << 16 | g << 8 | b ;
+			break;
 		case MOUSE_LOCATION:
-			return Data.lastMouseRGB;
+			r = (Data.lastMouseRGB >> 16) & 0xFF;
+			g = (Data.lastMouseRGB >> 8) & 0xFF;
+			b = (Data.lastMouseRGB) & 0xFF;
+			break;
 		case MOUSE_ANGLE:
-			return getAngleRGB(p.lastMouseAngle);
+			int RGB0 = getAngleRGB(p.lastMouseAngle);
+			r = (RGB0 >> 16) & 0xFF;
+			g = (RGB0 >> 8) & 0xFF;
+			b = (RGB0) & 0xFF;
+			break;
+//		case PARTICLE_LOCATION:
+//			
 		default:
 			System.err.println("TEXTURE VALUE NOT RECOGNIZED: " + Data.t);
-			return 0;
 		}
+		if(Data.colorWheelFlip){
+		r = 255 - r;
+		g = 255 - g;
+		b = 255 - b;
+		}
+		return r << 16 | g << 8 | b;
 	}
 	public static int getAngleRGB(double a){
 		float deg = (float)Math.toDegrees((a * Data.colorWheelMultiplier));
@@ -236,19 +252,12 @@ public class Main {
 	}
 	public static void update(){
 		tick++;
-		ArrayList<Long> longs = new ArrayList<Long>();
-		longs.add(System.nanoTime());
 		lastMouse = MouseInfo.getPointerInfo().getLocation();
 		double w = (double)lastMouse.x / (double)Data.BackWidth;
 		double h = (double)lastMouse.y / (double)Data.BackHeight;
 		int r = (int) (w * 255);
 		int g = (int) (h * 255);
 		int b = (int) ((1-h) * (1-w) * 255);
-		if(Data.colorWheelFlip){
-			r = 255 - r;
-			g = 255 - g;
-			b = 255 - b;
-		}
 		if(r < 0){
 			r = 0;
 		}
@@ -259,12 +268,37 @@ public class Main {
 			b = 0;
 		}
 		Data.lastMouseRGB = r << 16 | g << 8 | b ;
+		doPulls();
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
 				getDefaultConfiguration();
 		VolatileImage retVal = gc.createCompatibleVolatileImage(Data.vImage.getWidth(), Data.vImage.getHeight());
 		shiftColor();
-		longs.add(System.nanoTime());
+		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
+		Graphics2D g2b = (Graphics2D)vImage.getGraphics();
+		doBackGroundDraw(g2v);
+		doDraw(g2v, g2b);
+		doDataDraw(g2b,retVal);
+		//This flush is needed or else huge lag happens
+		retVal.flush();
+	}
+	public static void doBackGroundDraw(Graphics2D g2v){
+		if(Data.paint){
+			g2v.drawImage(Data.vImage, 0, 0, null);
+		}
+		else{
+			g2v.setColor(Color.BLACK);
+			g2v.fillRect(0, 0, vImage.getWidth(), vImage.getHeight());
+		}
+	}
+	public static void doDataDraw(Graphics2D g2b, VolatileImage retVal){
+		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+				RenderingHints.VALUE_ANTIALIAS_OFF); 
+		g2b.setColor(Color.BLACK);
+		
+		g2b.drawImage(retVal, 0, 0, null);
+	}
+	public static void doPulls(){
 		for(int j = 0; j < Main.particles.length;j++){
 			Particle p = Main.particles[j];
 			int baseX = lastMouse.x;
@@ -282,21 +316,8 @@ public class Main {
 			}
 
 		}
-
-		longs.add(System.nanoTime());
-		Graphics2D g2v = (Graphics2D)retVal.createGraphics();
-		Graphics2D g2b = (Graphics2D)vImage.getGraphics();
-		if(Data.paint){
-			g2v.drawImage(Data.vImage, 0, 0, null);
-		}
-		else{
-			g2v.setColor(Color.BLACK);
-			g2v.fillRect(0, 0, vImage.getWidth(), vImage.getHeight());
-		}
-		longs.add(System.nanoTime());
-		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_OFF); 
-		g2b.setColor(Color.BLACK);
+	}
+	public static void doDraw(Graphics2D g2v, Graphics2D g2b){
 		for(int i = 0; i < particleNum;i++){
 			Particle p = Main.particles[i];
 			double x = p.x;
@@ -380,66 +401,41 @@ public class Main {
 				}
 				break;
 			case TRIANGLES:
-				if(i % 1000 != 0 || i > particleNum - 3){
-					break;
-				}
-				//XXX TODO REMOVE ME
-				if(i != 0){
+				int z = (int) (particleNum / Data.colorWheelMultiplier);
+				
+				if(i % z != 0 || i > particleNum - 3){
 					break;
 				}
 				Polygon polygon = new Polygon();
 				Polygon[] magic = new Polygon[3];
-				for(int j = 0; j < 3;j++){
-				}
 				Particle c = p;
+				Particle[] aA = new Particle[3];
 				for(int j = 0; j < 3;j++){
 					polygon.addPoint((int)c.x, (int)c.y);
+					magic[j] = new Polygon();
+					aA[j] = c;
 					c = c.next;
 				}
-				c = p;
-				magic[0] = new Polygon();
-				magic[1] = new Polygon();
-				magic[2] = new Polygon();
-				Polygon p0 = magic[0];
-				p0.addPoint((int)c.x, (int)c.y);
-				p0.addPoint((int)c.lastX, (int)c.lastY);
-				p0.addPoint((int)c.next.x, (int)c.next.y);
-				p0.addPoint((int)c.next.lastX, (int)c.next.lastY);
-				c = c.next;
-				Polygon p1 = magic[1];
-				p1.addPoint((int)c.x, (int)c.y);
-				p1.addPoint((int)c.lastX, (int)c.lastY);
-				p1.addPoint((int)c.next.x, (int)c.next.y);
-				p1.addPoint((int)c.next.lastX, (int)c.next.lastY);
-				c = c.next;
-				Polygon p2 = magic[1];
-//				p2.addPoint((int)c.x, (int)c.y);
-//				p2.addPoint((int)c.lastX, (int)c.lastY);
-//				p2.addPoint((int)c.prev.lastX, (int)c.prev.lastY);
-//				p2.addPoint((int)c.prev.x, (int)c.prev.y);
-				p2.addPoint((int)c.x, (int)c.y);
-				p2.addPoint((int)c.lastX, (int)c.lastY);
-				p2.addPoint((int)c.next.x, (int)c.next.y);
-				p2.addPoint((int)c.next.lastX, (int)c.next.lastY);
-//				g2v.fill(p0);
-//				g2v.fill(p1);
-				g2v.fill(p2);
-//				if(Data.fill){
-//					g2v.fill(polygon);
-//				}
-//				else{
+				for(int j = 0; j < 3;j++){
+					Polygon p0 = magic[j];
+					int k = (j + 1) % 3;
+					p0.addPoint((int)aA[j].x, (int)aA[j].y);
+					p0.addPoint((int)aA[j].lastX, (int)aA[j].lastY);
+					p0.addPoint((int)aA[k].lastX, (int)aA[k].lastY);
+					p0.addPoint((int)aA[k].x, (int)aA[k].y);
+					if(Data.fill){
+						g2v.fillPolygon(p0);
+					}
+				}
+				if(!Data.fill){
 					g2v.draw(polygon);
-//				}
+				}
 				break;
 			}
 			if(Data.s == Shape.LINE){
 				g2v.drawLine((int)lastX, (int)lastY, (int)x, (int)y);
 			}
 		}
-		g2b.drawImage(retVal, 0, 0, null);
-		//This flush is needed or else huge lag happens
-		retVal.flush();
-		longs.add(System.nanoTime());
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
 		return Math.sqrt(((x1 - x2) * (x1 - x2)) + ((y1 - y2) * (y1 - y2)));
