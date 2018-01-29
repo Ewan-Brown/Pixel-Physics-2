@@ -71,7 +71,7 @@ public class ParticleMesser {
 			}
 		});
 		map.put("Spiral", new ParticleMesser(){
-			int z = Main.rand.nextInt(6) + 2;
+			int z = Data.rand.nextInt(6) + 2;
 			public void doParticle(Particle p,long tick){
 				p.lastX = p.x;
 				p.lastY = p.y;
@@ -89,7 +89,7 @@ public class ParticleMesser {
 			}
 		});
 		map.put("SpiralFriction", new ParticleMesser(){
-			int z = Main.rand.nextInt(6) + 2;
+			int z = Data.rand.nextInt(6) + 2;
 			public void doParticle(Particle p,long tick){
 				p.lastX = p.x;
 				p.lastY = p.y;

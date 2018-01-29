@@ -41,7 +41,7 @@ public class GamePanel extends JPanel implements Runnable{
 		int yOff = this.getLocationOnScreen().y;
 		gr.drawImage(Data.vImage, 0 - xOff, 0 - yOff, null);
 		long t1 = System.nanoTime();
-		Main.panelLag = (int) (t1 - t0) /1000000;
+		Data.panelLag = (int) (t1 - t0) /1000000;
 		gr.setColor(Color.RED);
 		drawString(gr,"Left Click-Drag-Release to throw particles\n"
 				+ "Right Click-Hold to pull particles\n"

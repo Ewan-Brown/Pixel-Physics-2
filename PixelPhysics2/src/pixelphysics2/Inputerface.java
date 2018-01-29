@@ -2,6 +2,7 @@ package pixelphysics2;
 
 import java.awt.Color;
 import java.awt.Graphics;
+import java.awt.MouseInfo;
 import java.awt.Point;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
@@ -25,10 +26,16 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		for(int i = 0; i < cooldowns.length;i++){
 			cooldowns[i]--;
 		}
+		if (Inputerface.keySet[KeyEvent.VK_Q]){
+			Point p = MouseInfo.getPointerInfo().getLocation();
+			Main.flick(Data.lastMouse.x, Data.lastMouse.y, p.x, p.y, System.nanoTime() - Data.lastTime);
+		}
+		Data.lastTime = System.nanoTime();
+		Data.lastMouse = MouseInfo.getPointerInfo().getLocation();
 		if(isKeyFresh(KeyEvent.VK_SPACE)){
 			cooldowns[KeyEvent.VK_SPACE] = 2;
 			Graphics g = Data.vImage.getGraphics();
-			g.setColor(new Color(Main.rand.nextInt(255),Main.rand.nextInt(255),Main.rand.nextInt(255)));
+			g.setColor(new Color(Data.rand.nextInt(255),Data.rand.nextInt(255),Data.rand.nextInt(255)));
 			//			g.setColor(Color.WHITE);
 			g.fillRect(0, 0, Data.vImage.getWidth(), Data.vImage.getHeight());
 		}
@@ -38,7 +45,7 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		}
 		if(isKeyFresh(KeyEvent.VK_X)){
 			cooldowns[KeyEvent.VK_X] = keyCooldown;
-			Data.pm = ParticleMesser.map.get(ParticleMesser.map.keySet().toArray()[Main.rand.nextInt(ParticleMesser.map.size())]);
+			Data.pm = ParticleMesser.map.get(ParticleMesser.map.keySet().toArray()[Data.rand.nextInt(ParticleMesser.map.size())]);
 		}
 		if(isKeyFresh(KeyEvent.VK_R)){
 			cooldowns[KeyEvent.VK_R] = keyCooldown;
@@ -90,9 +97,8 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		}
 		else{
 			Point local = e.getLocationOnScreen();
-			Point move = new Point(local.x - lastLeftClickPress.x,local.y - lastLeftClickPress.y);
 			long time = System.nanoTime() - lastLeftClickTime;
-			Main.flick(move.x, move.y, time);
+			Main.flick(lastLeftClickPress.x,lastLeftClickPress.y,local.x, local.y, time);
 		}
 	}
 	public void mouseEntered(MouseEvent e) {}

@@ -1,5 +1,6 @@
 package pixelphysics2;
 
+import java.awt.Point;
 import java.awt.image.VolatileImage;
 import java.util.Random;
 
@@ -35,4 +36,10 @@ public class Data {
 	public static double forceMult = 1;
 	public static double frictionMult = 1;
 	public static ParticleMesser pm;
+	static Point move;
+	static Point lastMouse = null;
+	static long lastTime = System.nanoTime();
+	static Particle[] particles;
+	static long tick = 0;
+	static int panelLag = 0;
 }
