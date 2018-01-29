@@ -31,7 +31,6 @@ public class FastMath {
 	public static final double atan2(double y, double x)
 	{
 		double add, mul;
-
 		if (x < 0.0f)
 		{
 			if (y < 0.0f)
@@ -46,7 +45,6 @@ public class FastMath {
 				x = -x;
 				mul = -1.0f;
 			}
-
 			add = -3.141592653f;
 		}
 		else
@@ -84,10 +82,30 @@ public class FastMath {
 		return Math.atan2(y, x) * DEG;
 	}
 
+	static final int precision = 100; // gradations per degree, adjust to suit
 
+	static final int modulus = 360*precision;
+	static final float[] sin = new float[modulus]; // lookup table
+	static { 
+	    // a static initializer fills the table
+	    // in this implementation, units are in degrees
+	    for (int i = 0; i<sin.length; i++) {
+	        sin[i]=(float)Math.sin((i*Math.PI)/(precision*180));
+	    }
+	}
+	// Private function for table lookup
+	private static float sinLookup(int a) {
+	    return a>=0 ? sin[a%(modulus)] : -sin[-a%(modulus)];
+	}
 
+	// These are your working functions:
+	public static float sin(float a) {
+	    return sinLookup((int)(a * precision + 0.5f));
+	}
+	public static float cos(float a) {
+	    return sinLookup((int)((a+90f) * precision + 0.5f));
+	}
 
-	// Math constants
 
 
 }

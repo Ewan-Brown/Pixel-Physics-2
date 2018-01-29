@@ -3,7 +3,6 @@ package pixelphysics2;
 import java.awt.Point;
 
 public class Click {
-
 	int keyCode = 0;
 	Point point = null;
 	
