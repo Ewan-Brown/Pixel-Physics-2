@@ -45,10 +45,21 @@ public class GamePanel extends JPanel implements Runnable{
 		gr.setColor(Color.RED);
 		drawString(gr,"Left Click-Drag-Release to throw particles\n"
 				+ "Right Click-Hold to pull particles\n"
-				+ "E to randomize\n"
-				+ "R to reset particles \n"
+				+ "E to completely randomize\n"
+				+ "T to change color algorithm\n"
+				+ "G to change shape algorithm\n"
+				+ "X to randomize physics algorithm - sketchy\n"
+				+ "Q hold to really fuck shit up\n"
+				+ "R to reset particles\n"
 				+ "P to toggle persistant paint\n"
+				+ "S to toggle mouse stretching\n"
+				+ "D to toggle speed stretching\n"
 				+ "Space to erase paint\n"			
+				+ "Scroll up/down to change PULL force\n"			
+				+ "Scroll up/down AND hold shift to change friction force\n"			
+				+ "ugggly menu - by Ewan Brown\n"		
+				+ "\n\n\n\n\n\n\n\n\n\n\n"			
+				+ "OOoh also move the window around\n"			
 				, 10, 20);
 	}
 	void drawString(Graphics g, String text, int x, int y) {
