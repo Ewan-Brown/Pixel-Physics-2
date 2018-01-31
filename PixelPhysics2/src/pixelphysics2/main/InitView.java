@@ -1,4 +1,4 @@
-package pixelphysics2;
+package pixelphysics2.main;
 
 import java.awt.EventQueue;
 import java.awt.event.ActionEvent;

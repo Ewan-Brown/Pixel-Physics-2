@@ -1,4 +1,4 @@
-package pixelphysics2;
+package pixelphysics2.main;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -11,8 +11,9 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
 
-import pixelphysics2.Data.Shape;
-import pixelphysics2.Data.Texture;
+import pixelphysics2.main.Data.Shape;
+import pixelphysics2.main.Data.Texture;
+import pixelphysics2.ui.UI;
 
 public class Inputerface implements MouseListener, KeyListener, MouseWheelListener{
 	public static boolean[] keySet = new boolean[256];
@@ -27,11 +28,11 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 			cooldowns[i]--;
 		}
 		if (Inputerface.keySet[KeyEvent.VK_Q]){
-			Point p = MouseInfo.getPointerInfo().getLocation();
+			Point p = Inputerface.getMouseLocation();
 			Main.flick(Data.lastMouse.x, Data.lastMouse.y, p.x, p.y, System.nanoTime() - Data.lastTime);
 		}
 		Data.lastTime = System.nanoTime();
-		Data.lastMouse = MouseInfo.getPointerInfo().getLocation();
+		Data.lastMouse = Inputerface.getMouseLocation();
 		if(isKeyFresh(KeyEvent.VK_SPACE)){
 			cooldowns[KeyEvent.VK_SPACE] = 2;
 			Graphics g = Data.vImage.getGraphics();
@@ -87,16 +88,23 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 			Inputerface.rightClick = true;
 		}
 		else{
-			lastLeftClickPress = new Point(e.getLocationOnScreen());
+			lastLeftClickPress = getMouseLocation();
 		}
 		lastLeftClickTime = System.nanoTime();
+	}
+	public static Point getMouseLocation(){
+		Point p = MouseInfo.getPointerInfo().getLocation();
+		if(UI.p != null){
+			p.move(p.x - UI.p.getLocationOnScreen().x, p.y - UI.p.getLocationOnScreen().y);
+		}
+		return p;
 	}
 	public void mouseReleased(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON3){
 			Inputerface.rightClick = false;
 		}
 		else{
-			Point local = e.getLocationOnScreen();
+			Point local = getMouseLocation();
 			long time = System.nanoTime() - lastLeftClickTime;
 			Main.flick(lastLeftClickPress.x,lastLeftClickPress.y,local.x, local.y, time);
 		}

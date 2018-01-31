@@ -1,4 +1,4 @@
-package pixelphysics2;
+package pixelphysics2.main;
 
 
 public class FastMath {

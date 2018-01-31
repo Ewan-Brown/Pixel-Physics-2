@@ -1,12 +1,12 @@
-package pixelphysics2;
+package pixelphysics2.main;
 
-import static pixelphysics2.Data.RGB;
-import static pixelphysics2.Data.RGB_switch;
-import static pixelphysics2.Data.fill;
-import static pixelphysics2.Data.particleNum;
-import static pixelphysics2.Data.rand;
-import static pixelphysics2.Data.shiftAmount;
-import static pixelphysics2.Data.vImage;
+import static pixelphysics2.main.Data.RGB;
+import static pixelphysics2.main.Data.RGB_switch;
+import static pixelphysics2.main.Data.fill;
+import static pixelphysics2.main.Data.particleNum;
+import static pixelphysics2.main.Data.rand;
+import static pixelphysics2.main.Data.shiftAmount;
+import static pixelphysics2.main.Data.vImage;
 
 import java.awt.Color;
 import java.awt.Dimension;
@@ -14,16 +14,14 @@ import java.awt.Graphics2D;
 import java.awt.GraphicsConfiguration;
 import java.awt.GraphicsEnvironment;
 import java.awt.MouseInfo;
-import java.awt.Point;
 import java.awt.Polygon;
-import java.awt.RenderingHints;
 import java.awt.Toolkit;
-import java.awt.event.KeyEvent;
 import java.awt.image.VolatileImage;
 import java.util.ArrayList;
 
-import pixelphysics2.Data.Shape;
-import pixelphysics2.Data.Texture;
+import pixelphysics2.main.Data.Shape;
+import pixelphysics2.main.Data.Texture;
+import pixelphysics2.ui.UI;
 
 public class Main {
 	public static void shiftColor(){
@@ -72,18 +70,22 @@ public class Main {
 			float bP = yA - mP * xA;
 			float xI = -(b - bP) / (m - mP);
 			float yI = (xI * mP) + bP;
+			float d = 0;
+			boolean bo = false;
 			if(xI > minX && xI < maxX){
-				float d = pDistance(xA,yA,x1,y1,x2,y2);
-				Data.particles[i].vX += xD / d / mills * 10;
-				Data.particles[i].vY += yD / d / mills * 10;
+				bo = true;
+				d = pDistance(xA,yA,x1,y1,x2,y2);
 			}
 			if(xI > maxX){
-				float d = (float) getDistance(xA, yA, maxX, maxY);
-				Data.particles[i].vX += xD / d / mills * 10;
-				Data.particles[i].vY += yD / d / mills * 10;
+				bo = true;
+				d = (float) getDistance(xA, yA, maxX, maxY);
 			}
 			if(xI < minX){
-				float d = (float) getDistance(xA, yA, minX, minY);
+				bo = true;
+				d = (float) getDistance(xA, yA, minX, minY);	
+			}
+			if(bo){
+				d *= Data.flickMult;
 				Data.particles[i].vX += xD / d / mills * 10;
 				Data.particles[i].vY += yD / d / mills * 10;
 			}
@@ -116,7 +118,7 @@ public class Main {
 		//		Data.t = Texture.CLASSIC;
 		Data.colorWheelMultiplier = rand.nextInt(3) + 1;
 		Data.colorWheelFlip = rand.nextBoolean();
-		Data.shiftAmount = rand.nextInt(6) + 1;
+//		Data.shiftAmount = rand.nextInt(6) + 1;
 		Data.mouseStretch = rand.nextBoolean();
 		Data.fill = rand.nextBoolean();
 		Data.speedStretch = rand.nextBoolean();
@@ -163,7 +165,6 @@ public class Main {
 		Data.maxParticleNum = v.slider.getValue();
 		Data.lowPerformance = v.tglPerformance.isSelected();
 		System.setProperty("sun.java2d.opengl","True");
-		
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 		GraphicsConfiguration gc = GraphicsEnvironment.
 				getLocalGraphicsEnvironment().getDefaultScreenDevice().
@@ -177,8 +178,9 @@ public class Main {
 		Data.BackHeight = vImage.getHeight();
 		v.frame.dispose();
 		Data.lastTime = System.nanoTime();
-		Data.lastMouse = MouseInfo.getPointerInfo().getLocation();
-		new GamePanel();
+		Data.lastMouse = Inputerface.getMouseLocation();
+//		new GamePanel();
+		new UI();
 		long t0 = System.nanoTime();
 		while(true){
 			if((System.nanoTime() - t0)/1000000 > 15){
@@ -222,9 +224,9 @@ public class Main {
 			b += 15;
 			break;
 		case CLASSIC:
-			r = (RGB[0] >> 16) & 0xFF;
-			g = (RGB[1] >> 8) & 0xFF;
-			b = (RGB[2]) & 0xFF;
+			r = RGB[0];
+			g = RGB[1];
+			b = RGB[2];
 			break;
 		case ANGLE:
 			double a = p.getAngle();
@@ -295,7 +297,7 @@ public class Main {
 	}
 	public static void update(){
 		Data.tick++;
-		
+
 		double w = (double)Data.lastMouse.x / (double)Data.BackWidth;
 		double h = (double)Data.lastMouse.y / (double)Data.BackHeight;
 		int r = (int) (w * 255);
@@ -335,9 +337,9 @@ public class Main {
 		}
 	}
 	public static void doDataDraw(Graphics2D g2b, VolatileImage retVal){
-		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
-				RenderingHints.VALUE_ANTIALIAS_OFF); 
-		g2b.setColor(Color.BLACK);
+		//		g2b.setRenderingHint(RenderingHints.KEY_ANTIALIASING,
+		//				RenderingHints.VALUE_ANTIALIAS_OFF); 
+		//		g2b.setColor(Color.BLACK);
 
 		g2b.drawImage(retVal, 0, 0, null);
 	}
@@ -488,7 +490,7 @@ public class Main {
 			g2v.setColor(new Color(getRGB(p)));
 			drawParticle(g2v, poly, i, s, p);
 			//TODO Fix this flag statement with something streamline, and switch this Data.s to a switch-case thing
-			
+
 		}
 	}
 	public static double getDistance( double x1,  double y1,  double x2,  double y2) {
