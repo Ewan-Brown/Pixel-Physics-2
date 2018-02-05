@@ -78,6 +78,11 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 			Data.frictionMult = 1;
 			Data.forceMult = 1;
 		}
+		if(isKeyFresh(KeyEvent.VK_1)){
+			cooldowns[KeyEvent.VK_1] = keyCooldown;
+			UI.HUD = !UI.HUD;
+			UI.updateElements();
+		}
 	}
 	public static boolean isKeyFresh(int key){
 		return keySet[key] && cooldowns[key] < 0;
@@ -95,7 +100,7 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 	public static Point getMouseLocation(){
 		Point p = MouseInfo.getPointerInfo().getLocation();
 		if(UI.p != null){
-			p.move(p.x - UI.p.getLocationOnScreen().x, p.y - UI.p.getLocationOnScreen().y);
+			p.move(p.x - UI.p.getParent().getLocationOnScreen().x, p.y - UI.p.getParent().getLocationOnScreen().y);
 		}
 		return p;
 	}

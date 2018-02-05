@@ -1,14 +1,19 @@
 package pixelphysics2.ui;
 
 import java.awt.Color;
-import java.awt.EventQueue;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
-import java.util.Random;
+import java.util.ArrayList;
 
+import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.JSpinner;
+import javax.swing.JSpinner.DefaultEditor;
+import javax.swing.SpinnerListModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import pixelphysics2.main.Data;
 import pixelphysics2.main.Inputerface;
@@ -18,19 +23,19 @@ public class UI implements Runnable{
 
 	private static JFrame frame;
 	public static JPanel p;
-	public boolean HUD = true;
-	public static void main(String[] args) {
-		EventQueue.invokeLater(new Runnable() {
-			public void run() {
-				try {
-					UI window = new UI();
-					window.frame.setVisible(true);
-				} catch (Exception e) {
-					e.printStackTrace();
-				}
-			}
-		});
-	}
+	public static boolean HUD = true;
+//	public static void main(String[] args) {
+//		EventQueue.invokeLater(new Runnable() {
+//			public void run() {
+//				try {
+//					UI window = new UI();
+//					window.frame.setVisible(true);
+//				} catch (Exception e) {
+//					e.printStackTrace();
+//				}
+//			}
+//		});
+//	}
 	public UI() {
 		initialize();
 	}
@@ -44,6 +49,7 @@ public class UI implements Runnable{
 	public void run() {
 		long t0 = System.nanoTime();
 		while(true) {
+			
 			if((System.nanoTime() - t0)/1000000 > 15){
 				t0 = System.nanoTime();
 				frame.repaint();
@@ -51,33 +57,51 @@ public class UI implements Runnable{
 		}
 
 	}
-	public void updateElements(){
+	public static void addSpin(JSpinner spin){
+		frame.add(spin);
+		spin.setLocation(10, 20);
+		spin.setSize(100, 100);
+		((DefaultEditor) spin.getEditor()).getTextField().setEditable(false);
+		spin.setModel(new SpinnerListModel(Data.Texture.values()));
+		spin.setVisible(true);
+		spin.setValue(Data.t);
+		spin.addChangeListener(new ChangeListener(){
+			@Override
+			public void stateChanged(ChangeEvent e) {
+				Data.t = (Data.Texture)spin.getValue();
+			}
+		});
+	}
+	public static void removeComponent(JComponent jc){
+		frame.remove(jc);
+	}
+	public static int hudSize = 200;
+	public static void updateElements(){
 		if(p != null){
-			p.setBounds(0,0,frame.getWidth(), frame.getHeight());
-			p.updateUI();
+			if(HUD){
+//				addSpin(spinTemp);
+				p.setBounds(hudSize,0,frame.getWidth(), frame.getHeight());
+				p.updateUI();
+			}
+			else{
+//				frame.remove(spinTemp);
+//				spinTemp.setVisible(false);
+				p.setBounds(0,0,frame.getWidth(), frame.getHeight());
+				p.updateUI();
+			}
 		}
 	}
+	public static ArrayList<JComponent> MenuComponents = new ArrayList<JComponent>();
+//	static JSpinner spinTemp = new JSpinner();
 	private void initialize() {
 		frame = new JFrame();
 		frame.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
 				updateElements();
 			}
-
-			@Override
-			public void componentMoved(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentShown(ComponentEvent e) {
-
-			}
-
-			@Override
-			public void componentHidden(ComponentEvent e) {
-
-			}
+			public void componentMoved(ComponentEvent e) {}
+			public void componentShown(ComponentEvent e) {}
+			public void componentHidden(ComponentEvent e) {}
 		});
 		frame.setBounds(100, 100, 728, 542);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -85,9 +109,7 @@ public class UI implements Runnable{
 			private static final long serialVersionUID = 1L;
 			public void paint(Graphics gr) {
 				long t0 = System.nanoTime();
-				//				int xOff = this.getLocationOnScreen().x;
-				//				int yOff = this.getLocationOnScreen().y;
-				int xOff = 0;
+				int xOff = (HUD) ? hudSize : 0;
 				int yOff = 0;
 				gr.drawImage(Data.vImage, 0 - xOff, 0 - yOff, null);
 				long t1 = System.nanoTime();
