@@ -18,7 +18,15 @@ public class Value<K> {
 	public void setValue(){
 		//TODO DO SOMETHING HERE SOMETIMES???
 	}
-	public static ArrayList<Value> k;
+	public static ArrayList<Value> k = new ArrayList<Value>();
+	public static void init(){
+		k.add(vMaxParticleNum);
+		k.add(vParticleNum);
+		k.add(vTexture);
+		k.add(vShape);
+		k.add(vMouseStretch);
+		k.add(vSpeedStretch);
+	}
 	public static Value<Integer> vMaxParticleNum = new Value<Integer>("Max Particles"){
 		public Integer getValue(){
 			return Data.maxParticleNum;

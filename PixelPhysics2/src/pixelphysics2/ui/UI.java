@@ -9,11 +9,7 @@ import java.util.ArrayList;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JSpinner;
-import javax.swing.JSpinner.DefaultEditor;
-import javax.swing.SpinnerListModel;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
+import javax.swing.JTextField;
 
 import pixelphysics2.main.Data;
 import pixelphysics2.main.Inputerface;
@@ -22,7 +18,7 @@ import pixelphysics2.main.Particle;
 public class UI implements Runnable{
 
 	private static JFrame frame;
-	public static JPanel p;
+	public static JPanel gamePanel;
 	public static boolean HUD = true;
 //	public static void main(String[] args) {
 //		EventQueue.invokeLater(new Runnable() {
@@ -49,50 +45,30 @@ public class UI implements Runnable{
 	public void run() {
 		long t0 = System.nanoTime();
 		while(true) {
-			
 			if((System.nanoTime() - t0)/1000000 > 15){
 				t0 = System.nanoTime();
 				frame.repaint();
 			}
 		}
-
 	}
-	public static void addSpin(JSpinner spin){
-		frame.add(spin);
-		spin.setLocation(10, 20);
-		spin.setSize(100, 100);
-		((DefaultEditor) spin.getEditor()).getTextField().setEditable(false);
-		spin.setModel(new SpinnerListModel(Data.Texture.values()));
-		spin.setVisible(true);
-		spin.setValue(Data.t);
-		spin.addChangeListener(new ChangeListener(){
-			@Override
-			public void stateChanged(ChangeEvent e) {
-				Data.t = (Data.Texture)spin.getValue();
-			}
-		});
-	}
-	public static void removeComponent(JComponent jc){
-		frame.remove(jc);
-	}
+	public static JPanel HUDPanel = new JPanel();
 	public static int hudSize = 200;
 	public static void updateElements(){
-		if(p != null){
+		if(gamePanel != null){
 			if(HUD){
-//				addSpin(spinTemp);
-				p.setBounds(hudSize,0,frame.getWidth(), frame.getHeight());
-				p.updateUI();
+				gamePanel.setBounds(hudSize,0,frame.getWidth(), frame.getHeight());
+				frame.add(HUDPanel);
+				HUDPanel.setBounds(0, 0, hudSize, frame.getHeight());
+				gamePanel.updateUI();
 			}
 			else{
-//				frame.remove(spinTemp);
-//				spinTemp.setVisible(false);
-				p.setBounds(0,0,frame.getWidth(), frame.getHeight());
-				p.updateUI();
+				gamePanel.setBounds(0,0,frame.getWidth(), frame.getHeight());
+				frame.remove(HUDPanel);
+				gamePanel.updateUI();
 			}
 		}
 	}
 	public static ArrayList<JComponent> MenuComponents = new ArrayList<JComponent>();
-//	static JSpinner spinTemp = new JSpinner();
 	private void initialize() {
 		frame = new JFrame();
 		frame.addComponentListener(new ComponentListener() {
@@ -105,7 +81,7 @@ public class UI implements Runnable{
 		});
 		frame.setBounds(100, 100, 728, 542);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		p = new JPanel(){
+		gamePanel = new JPanel(){
 			private static final long serialVersionUID = 1L;
 			public void paint(Graphics gr) {
 				long t0 = System.nanoTime();
@@ -136,7 +112,7 @@ public class UI implements Runnable{
 						, 10, 20);
 			}
 		};
-		p.setBounds(0, 0, 484, 461);
+		gamePanel.setBounds(0, 0, 484, 461);
 		Inputerface i = new Inputerface();
 		frame.addMouseListener(i);
 		frame.addKeyListener(i);
@@ -147,9 +123,9 @@ public class UI implements Runnable{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		frame.getContentPane().setLayout(null);
-		p.setDoubleBuffered(true);
-		p.setLayout(null);
-		frame.getContentPane().add(p);
+		gamePanel.setDoubleBuffered(true);
+		gamePanel.setLayout(null);
+		frame.getContentPane().add(gamePanel);
 		Thread t1 = new Thread(this);
 		t1.start();
 	}

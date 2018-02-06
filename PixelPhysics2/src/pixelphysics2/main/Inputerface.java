@@ -99,8 +99,8 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 	}
 	public static Point getMouseLocation(){
 		Point p = MouseInfo.getPointerInfo().getLocation();
-		if(UI.p != null){
-			p.move(p.x - UI.p.getParent().getLocationOnScreen().x, p.y - UI.p.getParent().getLocationOnScreen().y);
+		if(UI.gamePanel != null){
+			p.move(p.x - UI.gamePanel.getParent().getLocationOnScreen().x, p.y - UI.gamePanel.getParent().getLocationOnScreen().y);
 		}
 		return p;
 	}

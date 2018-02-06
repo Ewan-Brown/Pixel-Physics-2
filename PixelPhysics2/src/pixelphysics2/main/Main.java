@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import pixelphysics2.main.Data.Shape;
 import pixelphysics2.main.Data.Texture;
 import pixelphysics2.ui.UI;
+import pixelphysics2.ui.Value;
 
 public class Main {
 	public static void shiftColor(){
@@ -148,6 +149,7 @@ public class Main {
 	public static void main(String[] args) { 
 		// Cuts <10% lag?!
 		//		lowPerfModes.add(Shape.DOT.ordinal());
+		Value.init();
 		lowPerfModes.add(Shape.LINE.ordinal());
 		lowPerfModes.add(Shape.CONNECTMOUSE.ordinal());
 		lowPerfModes.add(Shape.CONNECTPIXEL.ordinal());
