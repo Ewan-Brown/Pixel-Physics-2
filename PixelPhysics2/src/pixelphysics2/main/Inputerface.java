@@ -81,7 +81,7 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		if(isKeyFresh(KeyEvent.VK_1)){
 			cooldowns[KeyEvent.VK_1] = keyCooldown;
 			UI.HUD = !UI.HUD;
-			UI.updateElements();
+//			UI.updateUIShape(); //XXX Removed HUD Temporary
 		}
 	}
 	public static boolean isKeyFresh(int key){

@@ -1,15 +1,20 @@
 package pixelphysics2.ui;
 
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Graphics;
 import java.awt.event.ComponentEvent;
 import java.awt.event.ComponentListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
+import javax.swing.BoxLayout;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
-import javax.swing.JTextField;
 
 import pixelphysics2.main.Data;
 import pixelphysics2.main.Inputerface;
@@ -19,19 +24,19 @@ public class UI implements Runnable{
 
 	private static JFrame frame;
 	public static JPanel gamePanel;
-	public static boolean HUD = true;
-//	public static void main(String[] args) {
-//		EventQueue.invokeLater(new Runnable() {
-//			public void run() {
-//				try {
-//					UI window = new UI();
-//					window.frame.setVisible(true);
-//				} catch (Exception e) {
-//					e.printStackTrace();
-//				}
-//			}
-//		});
-//	}
+	public static boolean HUD = false;
+	//	public static void main(String[] args) {
+	//		EventQueue.invokeLater(new Runnable() {
+	//			public void run() {
+	//				try {
+	//					UI window = new UI();
+	//					window.frame.setVisible(true);
+	//				} catch (Exception e) {
+	//					e.printStackTrace();
+	//				}
+	//			}
+	//		});
+	//	}
 	public UI() {
 		initialize();
 	}
@@ -44,16 +49,32 @@ public class UI implements Runnable{
 	}
 	public void run() {
 		long t0 = System.nanoTime();
+        JFrame.setDefaultLookAndFeelDecorated(true);
+		HUDPanel.setLayout(new BoxLayout(HUDPanel, BoxLayout.Y_AXIS));
+		for(int i = 0; i < Value.list.size();i++){
+			Value v = Value.list.get(i);
+			JComponent jc = v.jc;
+			jc.setVisible(true);
+			HUDPanel.add(jc);
+		}
 		while(true) {
 			if((System.nanoTime() - t0)/1000000 > 15){
 				t0 = System.nanoTime();
 				frame.repaint();
+				updateUIData();
 			}
 		}
+
 	}
-	public static JPanel HUDPanel = new JPanel();
+	public static JPanel HUDPanel = new JPanel(){};
 	public static int hudSize = 200;
-	public static void updateElements(){
+	public static void updateUIData(){
+		for(int i = 0; i < Value.list.size();i++){
+			Value v = Value.list.get(i);
+			v.updateValue();
+		}
+	}
+	public static void updateUIShape(){
 		if(gamePanel != null){
 			if(HUD){
 				gamePanel.setBounds(hudSize,0,frame.getWidth(), frame.getHeight());
@@ -70,10 +91,36 @@ public class UI implements Runnable{
 	}
 	public static ArrayList<JComponent> MenuComponents = new ArrayList<JComponent>();
 	private void initialize() {
+		HUDPanel.addMouseListener(new MouseListener(){
+			public void mousePressed(MouseEvent e) {
+				if(e.getSource() instanceof Component){
+					((Component)e.getSource()).requestFocus();
+				}
+			}
+			public void mouseClicked(MouseEvent e) {}
+			public void mouseReleased(MouseEvent e) {}
+			public void mouseEntered(MouseEvent e) {}
+			public void mouseExited(MouseEvent e) {}
+		});
+		HUDPanel.addKeyListener(new KeyListener(){
+			@Override
+			public void keyTyped(KeyEvent e) {
+			}
+			@Override
+			public void keyPressed(KeyEvent e) {
+				if(e.getKeyCode() == KeyEvent.VK_ENTER){
+					gamePanel.requestFocus();
+				}
+			}
+			@Override
+			public void keyReleased(KeyEvent e) {
+			}
+			
+		});
 		frame = new JFrame();
 		frame.addComponentListener(new ComponentListener() {
 			public void componentResized(ComponentEvent e) {
-				updateElements();
+				updateUIShape();
 			}
 			public void componentMoved(ComponentEvent e) {}
 			public void componentShown(ComponentEvent e) {}
@@ -106,17 +153,18 @@ public class UI implements Runnable{
 						+ "Space to erase paint\n"			
 						+ "Scroll up/down to change PULL force\n"			
 						+ "Scroll up/down AND hold shift to change friction force\n"			
-						//						+ "ugggly menu - by Ewan Brown\n"		
-						//						+ "\n\n\n\n\n\n\n\n\n\n\n"			
-						//						+ "OOoh also move the window around\n"			
+						//						+ "ugggly menu - by Ewan Brown\n"
+						//						+ "\n\n\n\n\n\n\n\n\n\n\n"
+						//						+ "OOoh also move the window around\n"
 						, 10, 20);
 			}
 		};
 		gamePanel.setBounds(0, 0, 484, 461);
+		gamePanel.setFocusable(true);
 		Inputerface i = new Inputerface();
-		frame.addMouseListener(i);
+		gamePanel.addMouseListener(i);
 		frame.addKeyListener(i);
-		frame.addMouseWheelListener(i);
+		gamePanel.addMouseWheelListener(i);
 		frame.setFocusable(true);
 		frame.setSize(500,500);
 		frame.setLocation(0, 0);
