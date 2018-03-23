@@ -13,16 +13,17 @@ import java.awt.event.MouseWheelListener;
 
 import pixelphysics2.main.Data.Shape;
 import pixelphysics2.main.Data.Texture;
+import pixelphysics2.ui.OpenGL;
 import pixelphysics2.ui.UI;
 
 public class Inputerface implements MouseListener, KeyListener, MouseWheelListener{
-	public static boolean[] keySet = new boolean[256];
+	public static boolean[] keySet = new boolean[65536];
 	//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
-	static boolean rightClick = false;
-	static Point lastLeftClickPress = null;
-	static Long lastLeftClickTime = null;
-	static int[] cooldowns = new int[256];
-	static int keyCooldown = 10;
+	public static boolean RMB = false;
+	public static Point lastLeftClickPress = null;
+	public static Long lastLeftClickTime = null;
+	public static int[] cooldowns = new int[256];
+	public static int keyCooldown = 10;
 	public static void updateKeys(){
 		for(int i = 0; i < cooldowns.length;i++){
 			cooldowns[i]--;
@@ -78,10 +79,14 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 			Data.frictionMult = 1;
 			Data.forceMult = 1;
 		}
+		if(isKeyFresh(KeyEvent.VK_O)){
+			cooldowns[KeyEvent.VK_O] = keyCooldown;
+			Data.fill = !Data.fill;
+		}
 		if(isKeyFresh(KeyEvent.VK_1)){
 			cooldowns[KeyEvent.VK_1] = keyCooldown;
 			UI.HUD = !UI.HUD;
-//			UI.updateUIShape(); //XXX Removed HUD Temporary
+			//			UI.updateUIShape(); //XXX Removed HUD Temporary
 		}
 	}
 	public static boolean isKeyFresh(int key){
@@ -90,23 +95,29 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 	public void mouseClicked(MouseEvent e) {}
 	public void mousePressed(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON3){
-			Inputerface.rightClick = true;
+			Inputerface.RMB = true;
 		}
 		else{
 			lastLeftClickPress = getMouseLocation();
+			lastLeftClickTime = System.nanoTime();
 		}
-		lastLeftClickTime = System.nanoTime();
 	}
 	public static Point getMouseLocation(){
-		Point p = MouseInfo.getPointerInfo().getLocation();
-		if(UI.gamePanel != null){
-			p.move(p.x - UI.gamePanel.getParent().getLocationOnScreen().x, p.y - UI.gamePanel.getParent().getLocationOnScreen().y);
+		Point p = null;
+		if(Main.LWJGL){
+			double[] components = OpenGL.getCursorPos();
+			return new Point((int)components[0] , (int)components[1]);
+		}else{
+			p = MouseInfo.getPointerInfo().getLocation();
+			if(UI.gamePanel != null){
+				p.move(p.x - UI.gamePanel.getParent().getLocationOnScreen().x, p.y - UI.gamePanel.getParent().getLocationOnScreen().y);
+			}
 		}
 		return p;
 	}
 	public void mouseReleased(MouseEvent e) {
 		if(e.getButton() == MouseEvent.BUTTON3){
-			Inputerface.rightClick = false;
+			Inputerface.RMB = false;
 		}
 		else{
 			Point local = getMouseLocation();

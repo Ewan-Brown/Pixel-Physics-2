@@ -7,13 +7,16 @@ import static pixelphysics2.main.Data.vImage;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
+import java.awt.GraphicsConfiguration;
+import java.awt.GraphicsEnvironment;
 import java.awt.Polygon;
-import java.awt.image.VolatileImage;
 
 import pixelphysics2.main.Data.Shape;
 
 public class Drawing {
-
+	static GraphicsConfiguration gc = GraphicsEnvironment.
+			getLocalGraphicsEnvironment().getDefaultScreenDevice().
+			getDefaultConfiguration();
 	public static void doBackGroundDraw(Graphics2D g2v){
 		if(Data.paint){
 			g2v.drawImage(Data.vImage, 0, 0, null);
@@ -22,10 +25,6 @@ public class Drawing {
 			g2v.setColor(Color.BLACK);
 			g2v.fillRect(0, 0, vImage.getWidth(), vImage.getHeight());
 		}
-	}
-
-	public static void doDataDraw(Graphics2D g2b, VolatileImage retVal){
-		g2b.drawImage(retVal, 0, 0, null);
 	}
 
 	public static int getAngleRGB(double a){
@@ -198,17 +197,17 @@ public class Drawing {
 				break;
 			}
 			Polygon polygon = new Polygon();
-			Polygon[] magic = new Polygon[3];
+			Polygon[] spacing = new Polygon[3];
 			Particle c = p;
 			Particle[] aA = new Particle[3];
 			for(int j = 0; j < 3;j++){
 				polygon.addPoint((int)c.x, (int)c.y);
-				magic[j] = new Polygon();
+				spacing[j] = new Polygon();
 				aA[j] = c;
 				c = c.next;
 			}
 			for(int j = 0; j < 3;j++){
-				Polygon p0 = magic[j];
+				Polygon p0 = spacing[j];
 				int k = (j + 1) % 3;
 				p0.addPoint((int)aA[j].x, (int)aA[j].y);
 				p0.addPoint((int)aA[j].lastX, (int)aA[j].lastY);
@@ -224,7 +223,8 @@ public class Drawing {
 			break;
 		}
 		if(Data.s == Shape.LINE){
-			g2v.drawLine((int)p.lastX, (int)p.lastY, (int)p.x, (int)p.y);
+			g2v.drawLine((int)p.lastX, (int)p.lastY, (int)p
+					.x, (int)p.y);
 		}
 	}
 

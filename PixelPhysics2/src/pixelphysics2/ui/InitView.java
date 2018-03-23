@@ -1,6 +1,5 @@
-package pixelphysics2.main;
+package pixelphysics2.ui;
 
-import java.awt.EventQueue;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
@@ -23,9 +22,9 @@ public class InitView {
 	public InitView() {
 		initialize();
 	}
-	JSlider slider;
-	JToggleButton tglPerformance;
-	boolean finished = false;
+	public JSlider slider;
+	public JToggleButton tglPerformance;
+	public boolean finished = false;
 	/**
 	 * Initialize the contents of the frame.
 	 */
@@ -40,10 +39,10 @@ public class InitView {
 		frame.getContentPane().add(lbl1);
 		
 		slider = new JSlider();
-		slider.setMaximum(100000);
+		slider.setMaximum(1000000);
 		slider.setMinimum(1);
 		slider.setBounds(33, 44, 200, 53);
-		slider.setMajorTickSpacing(99999);
+		slider.setMajorTickSpacing(999999);
 		slider.setPaintTicks(true);
 		slider.setPaintLabels(true);
 		slider.setValue(10000);

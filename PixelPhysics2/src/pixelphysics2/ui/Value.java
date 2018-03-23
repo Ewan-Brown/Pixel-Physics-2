@@ -30,8 +30,8 @@ public class Value<K extends Object> implements FocusListener{
 	}
 	public static ArrayList<Value> list = new ArrayList<Value>();
 	public static void init(){
-		list.add(vMaxParticleNum);
-		list.add(vParticleNum);
+//		list.add(vMaxParticleNum);
+//		list.add(vParticleNum);
 //		list.add(vTexture);
 //		list.add(vShape);
 //		list.add(vMouseStretch);
