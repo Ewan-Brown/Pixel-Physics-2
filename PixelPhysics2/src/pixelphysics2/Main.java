@@ -225,7 +225,7 @@ public class Main {
 			r = (RGB[0] >> 16) & 0xFF;
 			g = (RGB[1] >> 8) & 0xFF;
 			b = (RGB[2]) & 0xFF;
-			break;
+			break; 
 		case ANGLE:
 			double a = p.getAngle();
 			int RGB = getAngleRGB(a);
@@ -259,8 +259,11 @@ public class Main {
 			g = (RGB0 >> 8) & 0xFF;
 			b = (RGB0) & 0xFF;
 			break;
-			//		case PARTICLE_LOCATION:
-			//			
+		case PARTICLE_LOCATION:
+			r = ((int)p.x % (Data.RGB[0] + 1)) & 0xFF;
+			g = ((int)p.y % (Data.RGB[1]+1)) & 0xFF;
+			b = ((int)(p.x + p.y) % (Data.RGB[2]+1)) & 0xFF;
+			break;
 		default:
 			System.err.println("TEXTURE VALUE NOT RECOGNIZED: " + Data.t);
 		}
