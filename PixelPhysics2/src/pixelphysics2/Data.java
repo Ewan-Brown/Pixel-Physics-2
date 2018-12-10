@@ -2,12 +2,14 @@ package pixelphysics2;
 
 import java.awt.Point;
 import java.awt.image.VolatileImage;
+import java.util.ArrayList;
 import java.util.Random;
 
 public class Data {
 	static int maxParticleNum = 1000;
 	static int particleNum = 50;
 	static int ParticleRangeWidth = 10;
+	static ArrayList<Point> pausedPullArray = new ArrayList<>();
 	static Random rand = new Random();
 	static int Seed = rand.nextInt();
 	static int BackWidth = 0;
@@ -22,6 +24,7 @@ public class Data {
 	}
 	static Texture t = Texture.INDIVIDUAL;
 	static Shape s = Shape.FULL;
+	
 	static double colorWheelMultiplier = 1;
 	static boolean colorWheelFlip = false;
 	static boolean mouseStretch = true;

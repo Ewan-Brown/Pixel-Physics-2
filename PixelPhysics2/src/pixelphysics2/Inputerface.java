@@ -16,7 +16,6 @@ import pixelphysics2.Data.Texture;
 
 public class Inputerface implements MouseListener, KeyListener, MouseWheelListener{
 	public static boolean[] keySet = new boolean[256];
-	//	static ArrayList<Point> rightClickList = new ArrayList<Point>();
 	static boolean rightClick = false;
 	static Point lastLeftClickPress = null;
 	static Long lastLeftClickTime = null;
@@ -54,7 +53,6 @@ public class Inputerface implements MouseListener, KeyListener, MouseWheelListen
 		if(isKeyFresh(KeyEvent.VK_P)){
 			cooldowns[KeyEvent.VK_P] = keyCooldown;
 			Data.paint = !Data.paint;
-			//			Main.resetBackground();
 		}
 		if(isKeyFresh(KeyEvent.VK_S)){
 			cooldowns[KeyEvent.VK_S] = keyCooldown;
